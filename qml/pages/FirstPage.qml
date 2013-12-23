@@ -72,6 +72,7 @@ Page {
         spacing: Theme.paddingLarge
 
         // FIXME: Deal with an empty list somehow
+        // FIXME: Maybe deal with file going away or coming in
         model: csvhandler.getCSVFiles()
 
         delegate: ListItem {
