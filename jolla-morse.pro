@@ -15,8 +15,8 @@ SOURCES += src/jolla-morse.cpp
 OTHER_FILES += qml/jolla-morse.qml \
     qml/cover/CoverPage.qml \
     qml/pages/FirstPage.qml \
-    qml/pages/SecondPage.qml \
     rpm/jolla-morse.spec \
     rpm/jolla-morse.yaml \
-    jolla-morse.desktop
+    jolla-morse.desktop \
+    qml/pages/about.qml
 
