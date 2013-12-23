@@ -3,14 +3,15 @@
 #include <QDir>
 #include <QString>
 
-QStringList getCSVFiles() {
+CSVHandler::CSVHandler(QObject *parent) :
+    QObject(parent)
+{
+}
+
+QStringList CSVHandler::getCSVFiles() {
     QDir qdir = QDir(QString("/etc/mersdk/share/"));
 
     QStringList list = qdir.entryList();
     return list;
 }
 
-CSVHandler::CSVHandler(QObject *parent) :
-    QObject(parent)
-{
-}
