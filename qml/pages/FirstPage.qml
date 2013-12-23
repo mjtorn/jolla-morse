@@ -30,13 +30,16 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-
+import harbour.morse.CSVHandler 0.1
 
 Page {
     id: page
 
     // To enable PullDownMenu, place our content in a SilicaFlickable
-    SilicaFlickable {
+    // Fortunately SilicaListView seems to inherit correct
+    SilicaListView {
+        id: files
+
         anchors.fill: parent
 
         // PullDownMenu and PushUpMenu must be declared in SilicaFlickable, SilicaListView or SilicaGridView
@@ -48,23 +51,40 @@ Page {
         }
 
         // Tell SilicaFlickable the height of its content.
-        contentHeight: column.height
+        contentHeight: page.height
 
-        // Place our content in a Column.  The PageHeader is always placed at the top
-        // of the page, followed by our content.
-        Column {
-            id: column
+        // Tell the user things
+        header: PageHeader {
+            title: "Morse"
+        }
 
-            width: page.width
-            spacing: Theme.paddingLarge
-            PageHeader {
-                title: "Morse"
-            }
+        // This is harder than CSS, maybe a footer is enough ;P
+        footer: Label {
+            text: "Choose a file to import SMS data from"
+        }
+
+        // Have a CSVHandler
+        CSVHandler {
+            id: csvhandler
+        }
+
+        width: page.width
+        spacing: Theme.paddingLarge
+
+        // FIXME: Deal with an empty list somehow
+        model: csvhandler.getCSVFiles()
+
+        delegate: ListItem {
+            width: ListView.view.width
+            height: Theme.itemSizeSmall
+
+            // Our QStrings of file names
             Label {
-                x: Theme.paddingLarge
-                text: "Functionality coming soon!"
-                color: Theme.secondaryHighlightColor
-                font.pixelSize: Theme.fontSizeExtraLarge
+                text: modelData
+            }
+
+            onClicked: {
+                console.log('ok?')
             }
         }
     }
