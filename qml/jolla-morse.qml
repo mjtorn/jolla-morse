@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2013 Jolla Ltd.
-  Contact: Thomas Perl <thomas.perl@jollamobile.com>
+  Copyright (C) 2013 mjt.
+  Contact: Markus Törnqvist <mjt@nysv.org>
   All rights reserved.
 
   You may use this file under the terms of BSD license as follows:
