@@ -30,12 +30,22 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import harbour.morse.CSVHandler 0.1
 import "pages"
 
 ApplicationWindow
 {
     initialPage: Component { FirstPage { } }
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
+    onApplicationActiveChanged: {
+        if (applicationActive) {
+            console.log(csvhandler.getCSVFiles());
+        }
+    }
+
+    // I know you and I know your name!
+    CSVHandler {
+        id: csvhandler
+    }
+
 }
-
-
