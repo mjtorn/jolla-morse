@@ -84,7 +84,7 @@ Page {
             }
 
             onClicked: {
-                console.log('ok?')
+                console.log('ok? ' + modelData)
             }
         }
     }
