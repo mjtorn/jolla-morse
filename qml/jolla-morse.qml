@@ -37,15 +37,4 @@ ApplicationWindow
 {
     initialPage: Component { FirstPage { } }
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
-    onApplicationActiveChanged: {
-        if (applicationActive) {
-            console.log(csvhandler.getCSVFiles());
-        }
-    }
-
-    // I know you and I know your name!
-    CSVHandler {
-        id: csvhandler
-    }
-
 }
