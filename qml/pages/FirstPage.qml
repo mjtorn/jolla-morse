@@ -85,7 +85,8 @@ Page {
             }
 
             onClicked: {
-                console.log('ok? ' + modelData)
+                csvhandler.setFile(modelData);
+                console.log('ok? ' + csvhandler.getFile());
             }
         }
     }

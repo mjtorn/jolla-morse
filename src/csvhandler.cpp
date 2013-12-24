@@ -1,7 +1,10 @@
 #include "csvhandler.h"
 
+#include <QDebug>
 #include <QDir>
 #include <QString>
+
+QString BASEDIR_NAME = QString("/etc/mersdk/share/");
 
 CSVHandler::CSVHandler(QObject *parent) :
     QObject(parent)
@@ -12,10 +15,17 @@ QStringList CSVHandler::getCSVFiles() {
     QStringList filter;
     filter << "*.csv";
 
-    QDir qdir = QDir(QString("/etc/mersdk/share/"));
+    QDir qdir = QDir(BASEDIR_NAME);
     qdir.setNameFilters(filter);
 
     QStringList list = qdir.entryList();
     return list;
 }
 
+void CSVHandler::setFile(QString filename) {
+    this->filepath = BASEDIR_NAME + filename;
+}
+
+QString CSVHandler::getFile() {
+    return this->filepath;
+}
