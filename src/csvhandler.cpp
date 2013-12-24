@@ -24,11 +24,16 @@ QStringList CSVHandler::getCSVFiles() {
 }
 
 void CSVHandler::setFile(QString filename) {
+    this->filename = filename;
     this->filepath = BASEDIR_NAME + filename;
 }
 
-QString CSVHandler::getFile() {
+QString CSVHandler::getFilePath() {
     return this->filepath;
+}
+
+QString CSVHandler::getFileName() {
+    return this->filename;
 }
 
 void CSVHandler::parseFile() {

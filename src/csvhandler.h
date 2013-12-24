@@ -13,9 +13,11 @@ public:
     explicit CSVHandler(QObject *parent = 0);
     Q_INVOKABLE QStringList getCSVFiles();
     Q_INVOKABLE void setFile(QString filename);
-    Q_INVOKABLE QString getFile();
+    Q_INVOKABLE QString getFileName();
+    Q_INVOKABLE QString getFilePath();
     Q_INVOKABLE void parseFile();
 private:
+    QString filename;
     QString filepath;
     QFile file;
 
