@@ -2,6 +2,7 @@
 #define CSVHANDLER_H
 
 #include <QObject>
+#include <QFile>
 #include <QDir>
 #include <QString>
 
@@ -13,8 +14,10 @@ public:
     Q_INVOKABLE QStringList getCSVFiles();
     Q_INVOKABLE void setFile(QString filename);
     Q_INVOKABLE QString getFile();
+    Q_INVOKABLE void parseFile();
 private:
     QString filepath;
+    QFile file;
 
 signals:
 

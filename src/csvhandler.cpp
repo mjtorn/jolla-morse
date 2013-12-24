@@ -1,6 +1,7 @@
 #include "csvhandler.h"
 
 #include <QDebug>
+#include <QFile>
 #include <QDir>
 #include <QString>
 
@@ -28,4 +29,9 @@ void CSVHandler::setFile(QString filename) {
 
 QString CSVHandler::getFile() {
     return this->filepath;
+}
+
+void CSVHandler::parseFile() {
+    QFile file(filepath);
+    qDebug() << file.size();
 }
