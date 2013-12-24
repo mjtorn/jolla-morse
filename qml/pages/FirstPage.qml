@@ -83,7 +83,8 @@ Page {
 
             onClicked: {
                 appWindow.csvhandler.setFile(modelData);
-                console.log('Proceed. ' + appWindow.csvhandler.getFile());
+                console.log('Proceed. ' + appWindow.csvhandler.getFilePath());
+                pageStack.push(Qt.resolvedUrl("parse_csv.qml"))
             }
         }
     }
