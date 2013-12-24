@@ -19,7 +19,8 @@ OTHER_FILES += qml/jolla-morse.qml \
     rpm/jolla-morse.spec \
     rpm/jolla-morse.yaml \
     jolla-morse.desktop \
-    qml/pages/about.qml
+    qml/pages/about.qml \
+    qml/pages/parse_csv.qml
 
 HEADERS += \
     src/csvhandler.h
