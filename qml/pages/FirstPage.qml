@@ -35,6 +35,8 @@ import harbour.morse.CSVHandler 0.1
 Page {
     id: page
 
+    //property alias csvhandler: appWindow.csvhandler
+
     // To enable PullDownMenu, place our content in a SilicaFlickable
     // Fortunately SilicaListView seems to inherit correct
     SilicaListView {
@@ -63,17 +65,12 @@ Page {
             text: "Choose a file to import SMS data from"
         }
 
-        // Have a CSVHandler
-        CSVHandler {
-            id: csvhandler
-        }
-
         width: page.width
         spacing: Theme.paddingLarge
 
         // FIXME: Deal with an empty list somehow
         // FIXME: Maybe deal with file going away or coming in
-        model: csvhandler.getCSVFiles()
+        model: appWindow.csvhandler.getCSVFiles()
 
         delegate: ListItem {
             width: ListView.view.width
@@ -85,8 +82,8 @@ Page {
             }
 
             onClicked: {
-                csvhandler.setFile(modelData);
-                console.log('ok? ' + csvhandler.getFile());
+                appWindow.csvhandler.setFile(modelData);
+                console.log('Proceed. ' + appWindow.csvhandler.getFile());
             }
         }
     }
