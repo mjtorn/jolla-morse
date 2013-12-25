@@ -2,6 +2,7 @@
 #define CSVHANDLER_H
 
 #include <QObject>
+#include <QByteArray>
 #include <QFile>
 #include <QDir>
 #include <QString>
@@ -20,6 +21,7 @@ private:
     QString filename;
     QString filepath;
     QFile file;
+    QByteArray csvData;
 
 signals:
 

@@ -1,6 +1,7 @@
 #include "csvhandler.h"
 
 #include <QDebug>
+#include <QByteArray>
 #include <QIODevice>
 #include <QDir>
 #include <QFile>
@@ -51,6 +52,10 @@ void CSVHandler::parseFile() {
         goto end;
     }
     qDebug() << "OK!";
+
+    // Does not read all from beginning, just as we want
+    csvData = file.readAll();
+    qDebug() << csvData;
 
     end:
         file.close();
