@@ -5,7 +5,12 @@
 #include <QByteArray>
 #include <QFile>
 #include <QDir>
+#include <QList>
 #include <QString>
+
+#ifndef MESSAGEOBJECT_H
+#include "messageobject.h"
+#endif
 
 class CSVHandler : public QObject
 {
@@ -21,6 +26,7 @@ public:
     Q_PROPERTY(int readBytes READ getCSVBytes NOTIFY readBytesChanged);
 
 private:
+    Q_INVOKABLE QList<MessageObject*> actualParse();
     QString filename;
     QString filepath;
     QFile file;
