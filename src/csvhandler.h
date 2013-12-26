@@ -17,13 +17,18 @@ public:
     Q_INVOKABLE QString getFileName();
     Q_INVOKABLE QString getFilePath();
     Q_INVOKABLE void parseFile();
+    Q_INVOKABLE int getCSVBytes();
+    Q_PROPERTY(int readBytes READ getCSVBytes NOTIFY readBytesChanged);
+
 private:
     QString filename;
     QString filepath;
     QFile file;
     QByteArray csvData;
+    int readBytes;
 
 signals:
+    void readBytesChanged(int newValue);
 
 public slots:
 

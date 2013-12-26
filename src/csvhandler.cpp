@@ -13,6 +13,7 @@ QString FIRST_LINE = QString("\"ID\";\"EventTypes.name\";\"Events.Outgoing\";\"s
 CSVHandler::CSVHandler(QObject *parent) :
     QObject(parent)
 {
+    readBytes = 0;
 }
 
 QStringList CSVHandler::getCSVFiles() {
@@ -39,6 +40,10 @@ QString CSVHandler::getFileName() {
     return this->filename;
 }
 
+int CSVHandler::getCSVBytes() {
+    return csvData.size();
+}
+
 void CSVHandler::parseFile() {
     QFile file(filepath);
     file.open(QIODevice::ReadOnly);
@@ -55,7 +60,7 @@ void CSVHandler::parseFile() {
 
     // Does not read all from beginning, just as we want
     csvData = file.readAll();
-    qDebug() << csvData;
+    emit readBytesChanged(csvData.size());
 
     end:
         file.close();
