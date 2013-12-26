@@ -25,7 +25,6 @@ private:
     QString filepath;
     QFile file;
     QByteArray csvData;
-    int readBytes;
 
 signals:
     void readBytesChanged(int newValue);

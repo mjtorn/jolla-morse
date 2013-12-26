@@ -13,7 +13,6 @@ QString FIRST_LINE = QString("\"ID\";\"EventTypes.name\";\"Events.Outgoing\";\"s
 CSVHandler::CSVHandler(QObject *parent) :
     QObject(parent)
 {
-    readBytes = 0;
 }
 
 QStringList CSVHandler::getCSVFiles() {
