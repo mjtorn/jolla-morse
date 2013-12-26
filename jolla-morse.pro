@@ -11,7 +11,8 @@ TARGET = jolla-morse
 CONFIG += sailfishapp
 
 SOURCES += src/jolla-morse.cpp \
-    src/csvhandler.cpp
+    src/csvhandler.cpp \
+    src/messageobject.cpp
 
 OTHER_FILES += qml/jolla-morse.qml \
     qml/cover/CoverPage.qml \
@@ -23,5 +24,6 @@ OTHER_FILES += qml/jolla-morse.qml \
     qml/pages/parse_csv.qml
 
 HEADERS += \
-    src/csvhandler.h
+    src/csvhandler.h \
+    src/messageobject.h
 
