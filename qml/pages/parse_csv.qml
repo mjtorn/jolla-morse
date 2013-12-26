@@ -33,16 +33,27 @@ import Sailfish.Silica 1.0
 
 Page {
     id: parse_page
-    width: 100
-    height: 62
+    SilicaFlickable {
+        id: main_flickable
+        anchors.fill: parent
 
-    PageHeader {
-        title: appWindow.csvhandler.getFileName();
-    }
+        Column {
+            width: parse_page.width
+            height: parse_page.height
 
-    Column {
-        Component.onCompleted: {
-            appWindow.csvhandler.parseFile();
+            Component.onCompleted: {
+                appWindow.csvhandler.parseFile();
+            }
+
+            PageHeader {
+                title: appWindow.csvhandler.getFileName();
+            }
+
+            Label {
+                id: bytes_label
+                text: csvhandler.readBytes
+                x: Theme.paddingLarge
+            }
         }
     }
 }
