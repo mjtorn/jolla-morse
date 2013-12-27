@@ -113,67 +113,74 @@ QList<MessageObject*> CSVHandler::actualParse() {
                         msg->id = toInt(cell);
                         break;
                     case 2:
-                        qDebug() << "got type" << cell;
+                        //qDebug() << "got type" << cell;
                         msg->eventTypeName = cell;
                         break;
                     case 3:
                         msg->isOutgoing = (bool) toInt(cell);
-                        qDebug() << "got outgoing" << msg->isOutgoing;
+                        //qDebug() << "got outgoing" << msg->isOutgoing;
                         break;
                     case 4:
                         msg->storageTime = toLL(cell);
-                        qDebug() << "got storageTime" << msg->storageTime;
+                        //qDebug() << "got storageTime" << msg->storageTime;
                         break;
                     case 5:
                         msg->startTime = toLL(cell);
-                        qDebug() << "got startTime" << msg->startTime;
+                        //qDebug() << "got startTime" << msg->startTime;
                         break;
                     case 6:
                         msg->endTime = toLL(cell);
-                        qDebug() << "got endTime" << msg->endTime;
+                        //qDebug() << "got endTime" << msg->endTime;
                         break;
                     case 7:
                         msg->isRead = (bool) toInt(cell);
-                        qDebug() << "got isRead" << msg->isRead;
+                        //qDebug() << "got isRead" << msg->isRead;
                         break;
                     case 8:
                         msg->flags = toInt(cell);
-                        qDebug() << "got flags" << msg->flags;
+                        //qDebug() << "got flags" << msg->flags;
                         break;
                     case 9:
                         msg->bytesSent = toInt(cell);
-                        qDebug() << "got bytesSent" << msg->bytesSent;
+                        //qDebug() << "got bytesSent" << msg->bytesSent;
                         break;
                     case 10:
                         msg->bytesReceived = toInt(cell);
-                        qDebug() << "got bytesReceived" << msg->bytesReceived;
+                        //qDebug() << "got bytesReceived" << msg->bytesReceived;
                         break;
                     case 11:
                         msg->localUID = cell;
-                        qDebug() << "got localUID" << msg->localUID;
+                        //qDebug() << "got localUID" << msg->localUID;
                         break;
                     case 12:
                         msg->localName = cell;
-                        qDebug() << "got localName" << msg->localName;
+                        //qDebug() << "got localName" << msg->localName;
                         break;
                     case 13:
                         msg->remoteUID = cell;
-                        qDebug() << "got remoteUID" << msg->remoteUID;
+                        //qDebug() << "got remoteUID" << msg->remoteUID;
                         break;
                     case 14:
                         msg->remoteName = cell;
-                        qDebug() << "got remoteName" << msg->remoteName;
+                        //qDebug() << "got remoteName" << msg->remoteName;
                         break;
                     case 15:
                         msg->channel = cell;
-                        qDebug() << "got channel" << msg->channel;
+                        //qDebug() << "got channel" << msg->channel;
                         break;
                     case 16:
-                        msg->freeText = cell;
+                        // FIXME: The parser should handle a message whose content is only ;
+                        if (cell.compare(QString("")) == 0) {
+                            msg->freeText = QString(";");
+                        } else {
+                            msg->freeText = cell;
+                        }
                         qDebug() << "got freeText" << msg->freeText;
                         break;
                     default:
                         qDebug()  << "Unhandled cell count" << seenCells << cell;
+                        // FIXME: This is just horrible, only because of a message whose content is ;
+                        seenCells--;
                 }
 
                 // 1 extra is enough to see what broke
@@ -183,11 +190,11 @@ QList<MessageObject*> CSVHandler::actualParse() {
                 cell = "";
             }
         } else if (c == '\n') {
-            qDebug() << "Hit newline with seenCells" << seenCells << "and cell" << cell;
+            //qDebug() << "Hit newline with seenCells" << seenCells << "and cell" << cell;
             if (seenCells == ROW_LENGTH - 1 && c1 == '\r' && c2 == '"') {
                 if (msg->eventTypeName.compare(SMS_TYPE) == 0) {
                     msg->groupUID = cell;
-                    qDebug() << "got groupUID" << msg->groupUID;
+                    //qDebug() << "got groupUID" << msg->groupUID;
                     messages.push_back(msg);
                 } else {
                     delete msg;
