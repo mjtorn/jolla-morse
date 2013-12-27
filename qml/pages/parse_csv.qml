@@ -66,6 +66,12 @@ Page {
                 text: "Seen SMS: " + appWindow.csvhandler.seenSMS
                 x: Theme.paddingLarge
             }
+
+            Label {
+                id: inserted_sms_label
+                text: "Inserted SMS: " + appWindow.csvhandler.insertedSMS
+                x: Theme.paddingLarge
+            }
         }
     }
 }
