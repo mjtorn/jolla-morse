@@ -16,6 +16,7 @@ CSVHandler::CSVHandler(QObject *parent) :
     QObject(parent)
 {
     this->seenEntries = 0;
+    this->seenSMS = 0;
 }
 
 QStringList CSVHandler::getCSVFiles() {
@@ -50,6 +51,10 @@ int CSVHandler::getSeenEntries() {
     return this->seenEntries;
 }
 
+int CSVHandler::getSeenSMS() {
+    return this->seenSMS;
+}
+
 void CSVHandler::parseFile() {
     QList<MessageObject*> messages;
     QFile file(filepath);
@@ -70,7 +75,7 @@ void CSVHandler::parseFile() {
     emit readBytesChanged(csvData.size());
 
     messages = actualParse();
-    qDebug() << messages;
+    qDebug() << messages.size();
 
     end:
         file.close();
@@ -114,7 +119,7 @@ QList<MessageObject*> CSVHandler::actualParse() {
                 switch (seenCells) {
                     // ID is the first one
                     case 1:
-                        qDebug() << "got ID" << cell;
+                        //qDebug() << "got ID" << cell;
                         msg->id = toInt(cell);
                         break;
                     case 2:
@@ -180,10 +185,10 @@ QList<MessageObject*> CSVHandler::actualParse() {
                         } else {
                             msg->freeText = cell;
                         }
-                        qDebug() << "got freeText" << msg->freeText;
+                        //qDebug() << "got freeText" << msg->freeText;
                         break;
                     default:
-                        qDebug()  << "Unhandled cell count" << seenCells << cell;
+                        //qDebug()  << "Unhandled cell count" << seenCells << cell;
                         // FIXME: This is just horrible, only because of a message whose content is ;
                         seenCells--;
                 }
@@ -201,6 +206,10 @@ QList<MessageObject*> CSVHandler::actualParse() {
                     msg->groupUID = cell;
                     //qDebug() << "got groupUID" << msg->groupUID;
                     messages.push_back(msg);
+                    if (messages.size() % 100) {
+                        this->seenSMS = messages.size();
+                        emit seenSMSChanged(messages.size());
+                    }
                 } else {
                     delete msg;
                 }
@@ -232,7 +241,9 @@ QList<MessageObject*> CSVHandler::actualParse() {
             cell.push_back(c);
         }
     }
-    qDebug() << seenCells;
+    //qDebug() << seenCells;
+    this->seenSMS = messages.size();
+    emit seenSMSChanged(messages.size());
     return messages;
 }
 
