@@ -176,8 +176,8 @@ QList<MessageObject*> CSVHandler::actualParse() {
                         qDebug()  << "Unhandled cell count" << seenCells << cell;
                 }
 
-                // 3 is about as margin as debugging might need...
-                Q_ASSERT_X(seenCells < ROW_LENGTH + 3, "cells", "cells overflow");
+                // 1 extra is enough to see what broke
+                Q_ASSERT_X(seenCells < ROW_LENGTH + 1, "cells", "cells overflow");
 
                 // And reset the state a bit
                 cell = "";
