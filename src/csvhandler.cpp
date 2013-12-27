@@ -82,6 +82,7 @@ QList<MessageObject*> CSVHandler::actualParse() {
     QStringList stack;
     QString cell;
     bool convOk = false;
+    bool inQuotes = false;
     char c;
     int quoteDepth = 0;
     int seenCells = 0;
@@ -90,39 +91,48 @@ QList<MessageObject*> CSVHandler::actualParse() {
         c = csvData.at(i);
 
         if (c == ';') {
-            seenCells++;
-
-            switch (seenCells) {
-                // ID is the first one
-                case 1:
-                    qDebug() << "got ID" << cell;
-                    msg->id = cell.toInt(&convOk);
-                    if (!convOk) {
-                        // TODO: Error handling!
-                        QByteArray cCell = cell.toUtf8();
-                        Q_ASSERT_X(convOk, cCell.constData(), "ID conversion");
-                    }
-                    break;
-                case 2:
-                    qDebug() << "got type" << cell;
-                    msg->eventTypeName = cell;
-                    break;
-                default:
-                    qDebug()  << "Unhandled cell count" << seenCells << cell;
+            if (quoteDepth == 0 && csvData.at(i - 1) == '"') {
+                inQuotes = false;
             }
 
-            // 3 is about as margin as debugging might need...
-            Q_ASSERT_X(seenCells < ROW_LENGTH + 3, "cells", "cells overflow");
+            if (inQuotes) {
+                cell.push_back(c);
+            } else {
+                seenCells++;
 
-            // And reset the state a bit
-            stack.push_back(cell);
-            cell = "";
+                switch (seenCells) {
+                    // ID is the first one
+                    case 1:
+                        qDebug() << "got ID" << cell;
+                        msg->id = cell.toInt(&convOk);
+                        if (!convOk) {
+                            // TODO: Error handling!
+                            QByteArray cCell = cell.toUtf8();
+                            Q_ASSERT_X(convOk, cCell.constData(), "ID conversion");
+                        }
+                        break;
+                    case 2:
+                        qDebug() << "got type" << cell;
+                        msg->eventTypeName = cell;
+                        break;
+                    default:
+                        qDebug()  << "Unhandled cell count" << seenCells << cell;
+                }
+
+                // 3 is about as margin as debugging might need...
+                Q_ASSERT_X(seenCells < ROW_LENGTH + 3, "cells", "cells overflow");
+
+                // And reset the state a bit
+                stack.push_back(cell);
+                cell = "";
+            }
         } else if (c == '\n') {
             qDebug() << "Hit newline with seenCells" << seenCells << "and cell" << cell;
             if (seenCells == ROW_LENGTH - 1 && csvData.at(i - 1) == '\r' && csvData.at(i - 2) == '"') {
                 // Do something with the stack
                 // and reset the cells
                 seenCells = 0;
+                inQuotes = false;
                 stack.push_back(cell);
                 cell = "";
                 if (msg->eventTypeName.compare(SMS_TYPE) == 0) {
@@ -142,6 +152,10 @@ QList<MessageObject*> CSVHandler::actualParse() {
                 }
             } else {
                 quoteDepth = 0;
+            }
+
+            if (quoteDepth == 0 && csvData.at(i - 1) == ';') {
+                inQuotes = true;
             }
         } else {
             cell.push_back(c);
