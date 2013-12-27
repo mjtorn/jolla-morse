@@ -118,7 +118,7 @@ QList<MessageObject*> CSVHandler::actualParse() {
             stack.push_back(cell);
             cell = "";
         } else if (c == '\n') {
-            qDebug() << "Hit newline with seenCells" << seenCells;
+            qDebug() << "Hit newline with seenCells" << seenCells << "and cell" << cell;
             if (seenCells == ROW_LENGTH - 1 && csvData.at(i - 1) == '\r' && csvData.at(i - 2) == '"') {
                 // Do something with the stack
                 // and reset the cells
