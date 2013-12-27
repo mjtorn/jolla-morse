@@ -189,7 +189,7 @@ MessageObjectList CSVWorker::actualParse() {
                     msg->groupUID = cell;
                     //qDebug() << "got groupUID" << msg->groupUID;
                     messages.push_back(msg);
-                    if (messages.size() % 100) {
+                    if (messages.size() % 100 == 0) {
                         this->seenSMS = messages.size();
                         emit seenSMSChanged(messages.size());
                     }
