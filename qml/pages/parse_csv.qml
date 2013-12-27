@@ -51,13 +51,19 @@ Page {
 
             Label {
                 id: bytes_label
-                text: "Read bytes: " + csvhandler.readBytes
+                text: "Read bytes: " + appWindow.csvhandler.readBytes
                 x: Theme.paddingLarge
             }
 
             Label {
                 id: entries_label
-                text: "Seen entries: " + csvhandler.seenEntries
+                text: "Seen entries: " + appWindow.csvhandler.seenEntries
+                x: Theme.paddingLarge
+            }
+
+            Label {
+                id: sms_label
+                text: "Seen SMS: " + appWindow.csvhandler.seenSMS
                 x: Theme.paddingLarge
             }
         }
