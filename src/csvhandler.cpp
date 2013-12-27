@@ -82,7 +82,6 @@ QList<MessageObject*> CSVHandler::actualParse() {
     QStringList stack;
     QString cell;
     bool convOk = false;
-    bool inCell = false;
     char c;
     int quoteDepth = 0;
     int seenCells = 0;
@@ -92,7 +91,6 @@ QList<MessageObject*> CSVHandler::actualParse() {
 
         if (c == ';') {
             seenCells++;
-            inCell = !inCell;
 
             switch (seenCells) {
                 // ID is the first one
@@ -119,7 +117,7 @@ QList<MessageObject*> CSVHandler::actualParse() {
             cell = "";
         } else if (c == '\n') {
             qDebug() << "Hit newline with seenCells" << seenCells;
-            if (seenCells == ROW_LENGTH - 1 && !inCell) {
+            if (seenCells == ROW_LENGTH - 1 && csvData.at(i - 1) == '\r' && csvData.at(i - 2) == '"') {
                 // Do something with the stack
                 // and reset the cells
                 seenCells = 0;
