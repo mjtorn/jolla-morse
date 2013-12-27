@@ -14,8 +14,6 @@ QString BASEDIR_NAME = QString("/etc/mersdk/share/");
 QString FIRST_LINE = QString("\"ID\";\"EventTypes.name\";\"Events.Outgoing\";\"storage_time\";\"start_time\";\"end_time\";\"is_read\";\"flags\";\"bytes_sent\";\"bytes_received\";\"local_uid\";\"local_name\";\"remote_uid\";\"remote_name\";\"channel\";\"free_text\";\"group_uid\"\r\n");
 QString SMS_TYPE = QString("RTCOM_EL_EVENTTYPE_SMS_MESSAGE");
 
-typedef QList<MessageObject*> MessageObjectList;
-
 CSVWorker::CSVWorker(QString filepath) :
     QThread()
 {
@@ -39,7 +37,7 @@ int CSVWorker::getSeenSMS() {
 void CSVWorker::run() Q_DECL_OVERRIDE {
     QString filepath = this->filepath;
     qDebug() << "CSVWorker::run(" << filepath << ")";
-    QList<MessageObject*> messages;
+    MessageObjectList messages;
 
     QFile file(filepath);
     file.open(QIODevice::ReadOnly);
@@ -69,11 +67,11 @@ void CSVWorker::run() Q_DECL_OVERRIDE {
 
     emit parseFileCompleted(messages);
 }
-QList<MessageObject*> CSVWorker::actualParse() {
+MessageObjectList CSVWorker::actualParse() {
     int ROW_LENGTH = 17;
 
     MessageObject *msg = new MessageObject();
-    QList<MessageObject*> messages;
+    MessageObjectList messages;
     QString cell;
     bool inQuotes = false;
     char c;
@@ -270,7 +268,7 @@ void CSVHandler::parseFile() {
     csvWorker->start();
 }
 
-void CSVHandler::insertMessages(QList<MessageObject*> messages) {
+void CSVHandler::insertMessages(MessageObjectList messages) {
     qDebug() << "Inserting messages:" << messages.size();
 }
 

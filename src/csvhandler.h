@@ -13,6 +13,8 @@
 #include "messageobject.h"
 #endif
 
+typedef QList<MessageObject*> MessageObjectList;
+
 class CSVWorker : public QThread
 {
     Q_OBJECT
@@ -22,7 +24,7 @@ private:
     QByteArray csvData;
     QString filepath;
     Q_INVOKABLE void run();
-    Q_INVOKABLE QList<MessageObject*> actualParse();
+    Q_INVOKABLE MessageObjectList actualParse();
 public:
     explicit CSVWorker(QString filepath);
     Q_INVOKABLE int getCSVBytes();
@@ -35,7 +37,7 @@ signals:
     void readBytesChanged(int newValue);
     void seenEntriesChanged(int seenEntries);
     void seenSMSChanged(int seenSMS);
-    void parseFileCompleted(QList<MessageObject*> messages);
+    void parseFileCompleted(MessageObjectList messages);
 };
 
 
@@ -49,7 +51,7 @@ public:
     Q_INVOKABLE QString getFileName();
     Q_INVOKABLE QString getFilePath();
     Q_INVOKABLE void parseFile();
-    Q_INVOKABLE void insertMessages(QList<MessageObject*> messages);
+    Q_INVOKABLE void insertMessages(MessageObjectList messages);
 
 private:
     QString filename;
