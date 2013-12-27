@@ -100,6 +100,8 @@ QList<MessageObject*> CSVHandler::actualParse() {
                     msg->id = cell.toInt(&convOk);
                     if (!convOk) {
                         // TODO: Error handling!
+                        QByteArray cCell = cell.toUtf8();
+                        Q_ASSERT_X(convOk, cCell.constData(), "ID conversion");
                     }
                     break;
                 case 2:
@@ -107,6 +109,9 @@ QList<MessageObject*> CSVHandler::actualParse() {
                 default:
                     qDebug()  << "Unhandled cell count" << seenCells << cell;
             }
+
+            // 3 is about as margin as debugging might need...
+            Q_ASSERT_X(seenCells < ROW_LENGTH + 3, "cells", "cells overflow");
 
             // And reset the state a bit
             stack.push_back(cell);
