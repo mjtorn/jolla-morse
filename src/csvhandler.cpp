@@ -93,8 +93,6 @@ QList<MessageObject*> CSVHandler::actualParse() {
             seenCells++;
             inCell = !inCell;
 
-            // XXX: Could fast-forward over unsupported types
-            // but filtering at the end is so much easier.
             switch (seenCells) {
                 // ID is the first one
                 case 1:
