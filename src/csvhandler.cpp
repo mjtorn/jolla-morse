@@ -79,7 +79,6 @@ QList<MessageObject*> CSVHandler::actualParse() {
 
     MessageObject *msg = new MessageObject();
     QList<MessageObject*> messages;
-    QStringList stack;
     QString cell;
     bool inQuotes = false;
     char c;
@@ -173,7 +172,6 @@ QList<MessageObject*> CSVHandler::actualParse() {
                 Q_ASSERT_X(seenCells < ROW_LENGTH + 3, "cells", "cells overflow");
 
                 // And reset the state a bit
-                stack.push_back(cell);
                 cell = "";
             }
         } else if (c == '\n') {
@@ -188,11 +186,9 @@ QList<MessageObject*> CSVHandler::actualParse() {
                 }
                 msg = new MessageObject();
 
-                // Do something with the stack
-                // and reset the cells
+                // Reset state
                 seenCells = 0;
                 inQuotes = false;
-                stack.push_back(cell);
                 cell = "";
             }
         } else if (c == '"') {
