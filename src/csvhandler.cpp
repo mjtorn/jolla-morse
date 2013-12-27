@@ -236,9 +236,13 @@ MessageObjectList CSVWorker::actualParse() {
 CSVHandler::CSVHandler(QObject *parent) :
     QObject(parent)
 {
+    // Come from CSVWorker
     this->readBytes = 0;
     this->seenEntries = 0;
     this->seenSMS = 0;
+
+    // This is us
+    this->insertedSMS = 0;
 }
 
 QStringList CSVHandler::getCSVFiles() {
@@ -292,6 +296,10 @@ int CSVHandler::getSeenSMS() {
     return this->seenSMS;
 }
 
+int CSVHandler::getInsertedSMS() {
+    return this->insertedSMS;
+}
+
 void CSVHandler::parseFile() {
     qRegisterMetaType<MessageObjectList>("MessageObjectList");
     qDebug() << "CSVHandler::parseFile() called, registered QList<MessageObject*>";
@@ -308,6 +316,10 @@ void CSVHandler::parseFile() {
 
 void CSVHandler::insertMessages(MessageObjectList messages) {
     qDebug() << "Inserting messages:" << messages.size();
+    // Only debug obviously
+    // TODO: Actual functionality!
+    this->insertedSMS = messages.size();
+    emit insertedSMSChanged(messages.size());
 }
 
 quint32 toInt(QString s) {

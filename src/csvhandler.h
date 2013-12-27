@@ -55,12 +55,14 @@ public:
     Q_INVOKABLE int getReadBytes();
     Q_INVOKABLE int getSeenEntries();
     Q_INVOKABLE int getSeenSMS();
+    Q_INVOKABLE int getInsertedSMS();
     Q_INVOKABLE void setReadBytes(int readBytes);
     Q_INVOKABLE void setSeenEntries(int seenEntries);
     Q_INVOKABLE void setSeenSMS(int seenSMS);
     Q_PROPERTY(int readBytes READ getReadBytes NOTIFY readBytesChanged);
     Q_PROPERTY(int seenEntries READ getSeenEntries NOTIFY seenEntriesChanged);
     Q_PROPERTY(int seenSMS READ getSeenSMS NOTIFY seenSMSChanged);
+    Q_PROPERTY(int insertedSMS READ getInsertedSMS NOTIFY insertedSMSChanged);
 
 private:
     QString filename;
@@ -69,11 +71,13 @@ private:
     int readBytes;
     int seenEntries;
     int seenSMS;
+    int insertedSMS;
 
 signals:
     void readBytesChanged(int newValue);
     void seenEntriesChanged(int seenEntries);
     void seenSMSChanged(int seenSMS);
+    void insertedSMSChanged(int insertedSMS);
 
 public slots:
 
