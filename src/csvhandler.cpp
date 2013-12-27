@@ -81,7 +81,6 @@ QList<MessageObject*> CSVHandler::actualParse() {
     QList<MessageObject*> messages;
     QStringList stack;
     QString cell;
-    bool convOk = false;
     bool inQuotes = false;
     char c;
     int quoteDepth = 0;
@@ -104,12 +103,7 @@ QList<MessageObject*> CSVHandler::actualParse() {
                     // ID is the first one
                     case 1:
                         qDebug() << "got ID" << cell;
-                        msg->id = cell.toInt(&convOk);
-                        if (!convOk) {
-                            // TODO: Error handling!
-                            QByteArray cCell = cell.toUtf8();
-                            Q_ASSERT_X(convOk, cCell.constData(), "ID conversion");
-                        }
+                        msg->id = toInt(cell);
                         break;
                     case 2:
                         qDebug() << "got type" << cell;
@@ -163,4 +157,32 @@ QList<MessageObject*> CSVHandler::actualParse() {
     }
     qDebug() << seenCells;
     return messages;
+}
+
+quint32 toInt(QString s) {
+    quint32 i = 0;
+    bool convOk = false;
+
+    i = s.toInt(&convOk);
+    if (!convOk) {
+        // TODO: Error handling!
+        QByteArray sa = s.toUtf8();
+        Q_ASSERT_X(convOk, sa.constData(), "Bad conversion");
+    }
+
+    return i;
+}
+
+quint64 toLL(QString s) {
+    quint64 i = 0;
+    bool convOk = false;
+
+    i = s.toLongLong(&convOk);
+    if (!convOk) {
+        // TODO: Error handling!
+        QByteArray sa = s.toUtf8();
+        Q_ASSERT_X(convOk, sa.constData(), "Bad conversion");
+    }
+
+    return i;
 }

@@ -39,4 +39,7 @@ public slots:
 
 };
 
+quint32 toInt(QString s);
+quint64 toLL(QString s);
+
 #endif // CSVHANDLER_H
