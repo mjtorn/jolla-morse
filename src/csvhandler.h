@@ -23,9 +23,12 @@ public:
     Q_INVOKABLE QString getFilePath();
     Q_INVOKABLE void parseFile();
     Q_INVOKABLE int getCSVBytes();
+    Q_INVOKABLE int getSeenEntries();
     Q_PROPERTY(int readBytes READ getCSVBytes NOTIFY readBytesChanged);
+    Q_PROPERTY(int seenEntries READ getSeenEntries NOTIFY seenEntriesChanged);
 
 private:
+    int seenEntries;
     Q_INVOKABLE QList<MessageObject*> actualParse();
     QString filename;
     QString filepath;
@@ -34,6 +37,7 @@ private:
 
 signals:
     void readBytesChanged(int newValue);
+    void seenEntriesChanged(int seenEntries);
 
 public slots:
 

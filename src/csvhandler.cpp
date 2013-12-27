@@ -15,6 +15,7 @@ QString SMS_TYPE = QString("RTCOM_EL_EVENTTYPE_SMS_MESSAGE");
 CSVHandler::CSVHandler(QObject *parent) :
     QObject(parent)
 {
+    this->seenEntries = 0;
 }
 
 QStringList CSVHandler::getCSVFiles() {
@@ -43,6 +44,10 @@ QString CSVHandler::getFileName() {
 
 int CSVHandler::getCSVBytes() {
     return csvData.size();
+}
+
+int CSVHandler::getSeenEntries() {
+    return this->seenEntries;
 }
 
 void CSVHandler::parseFile() {
@@ -199,6 +204,8 @@ QList<MessageObject*> CSVHandler::actualParse() {
                 } else {
                     delete msg;
                 }
+                this->seenEntries++;
+                emit seenEntriesChanged(this->seenEntries);
                 msg = new MessageObject();
 
                 // Reset state
