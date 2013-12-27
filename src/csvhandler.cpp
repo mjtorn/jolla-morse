@@ -104,7 +104,9 @@ QList<MessageObject*> CSVHandler::actualParse() {
                     }
                     break;
                 case 2:
+                    qDebug() << "got type" << cell;
                     msg->eventTypeName = cell;
+                    break;
                 default:
                     qDebug()  << "Unhandled cell count" << seenCells << cell;
             }
