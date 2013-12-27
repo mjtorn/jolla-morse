@@ -128,7 +128,9 @@ QList<MessageObject*> CSVHandler::actualParse() {
                 }
                 msg = new MessageObject();
             }
-        } else if (c != '"') {
+        // XXX: This check should not suffice, though " is escaped as ""
+        // if the message has """lol""" type of content in it
+        } else if ((c == '"' && csvData.at(i - 1) == '"') || (c != '"')) {
             cell.push_back(c);
         }
     }
