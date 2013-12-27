@@ -10,6 +10,8 @@
 #include <QString>
 #include <QThread>
 
+#include <time.h>
+
 QString BASEDIR_NAME = QString("/etc/mersdk/share/");
 QString FIRST_LINE = QString("\"ID\";\"EventTypes.name\";\"Events.Outgoing\";\"storage_time\";\"start_time\";\"end_time\";\"is_read\";\"flags\";\"bytes_sent\";\"bytes_received\";\"local_uid\";\"local_name\";\"remote_uid\";\"remote_name\";\"channel\";\"free_text\";\"group_uid\"\r\n");
 QString SMS_TYPE = QString("RTCOM_EL_EVENTTYPE_SMS_MESSAGE");
@@ -192,6 +194,7 @@ MessageObjectList CSVWorker::actualParse() {
                     if (messages.size() % 100 == 0) {
                         this->seenSMS = messages.size();
                         emit seenSMSChanged(messages.size());
+                        usleep(50 * 1000); // Sleep 50ms to make sure this works
                     }
                 } else {
                     delete msg;
