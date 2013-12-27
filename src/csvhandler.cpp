@@ -82,14 +82,22 @@ QList<MessageObject*> CSVHandler::actualParse() {
     QString cell;
     bool inQuotes = false;
     char c;
+    char c1;
+    char c2;
     int quoteDepth = 0;
     int seenCells = 0;
 
     for (int i=0; i<csvData.size(); i++) {
         c = csvData.at(i);
+        if (i > 1) {
+            c1 = csvData.at(i - 1);
+        }
+        if (i > 2) {
+            c2 = csvData.at(i - 2);
+        }
 
         if (c == ';') {
-            if (quoteDepth == 0 && csvData.at(i - 1) == '"') {
+            if (quoteDepth == 0 && c1 == '"') {
                 inQuotes = false;
             }
 
@@ -176,7 +184,7 @@ QList<MessageObject*> CSVHandler::actualParse() {
             }
         } else if (c == '\n') {
             qDebug() << "Hit newline with seenCells" << seenCells << "and cell" << cell;
-            if (seenCells == ROW_LENGTH - 1 && csvData.at(i - 1) == '\r' && csvData.at(i - 2) == '"') {
+            if (seenCells == ROW_LENGTH - 1 && c1 == '\r' && c2 == '"') {
                 if (msg->eventTypeName.compare(SMS_TYPE) == 0) {
                     msg->groupUID = cell;
                     qDebug() << "got groupUID" << msg->groupUID;
@@ -194,7 +202,7 @@ QList<MessageObject*> CSVHandler::actualParse() {
         } else if (c == '"') {
             // " is escaped as "", this should work until int overflow.
             // Make sure we're not in a ;""; type of situation, though.
-            if (csvData.at(i - 1) == '"' && csvData.at(i - 2) != ';') {
+            if (c1 == '"' && c2 != ';') {
                 quoteDepth++;
                 if (quoteDepth % 2 == 1) {
                     cell.push_back(c);
@@ -203,7 +211,7 @@ QList<MessageObject*> CSVHandler::actualParse() {
                 quoteDepth = 0;
             }
 
-            if (quoteDepth == 0 && csvData.at(i - 1) == ';') {
+            if (quoteDepth == 0 && c1 == ';') {
                 inQuotes = true;
             }
         } else {
