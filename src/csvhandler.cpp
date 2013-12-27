@@ -6,57 +6,41 @@
 #include <QDir>
 #include <QFile>
 #include <QList>
+#include <QMetaType>
 #include <QString>
+#include <QThread>
 
 QString BASEDIR_NAME = QString("/etc/mersdk/share/");
 QString FIRST_LINE = QString("\"ID\";\"EventTypes.name\";\"Events.Outgoing\";\"storage_time\";\"start_time\";\"end_time\";\"is_read\";\"flags\";\"bytes_sent\";\"bytes_received\";\"local_uid\";\"local_name\";\"remote_uid\";\"remote_name\";\"channel\";\"free_text\";\"group_uid\"\r\n");
 QString SMS_TYPE = QString("RTCOM_EL_EVENTTYPE_SMS_MESSAGE");
 
-CSVHandler::CSVHandler(QObject *parent) :
-    QObject(parent)
+typedef QList<MessageObject*> MessageObjectList;
+
+CSVWorker::CSVWorker(QString filepath) :
+    QThread()
 {
+    this->filepath = filepath;
     this->seenEntries = 0;
     this->seenSMS = 0;
 }
 
-QStringList CSVHandler::getCSVFiles() {
-    QStringList filter;
-    filter << "*.csv";
-
-    QDir qdir = QDir(BASEDIR_NAME);
-    qdir.setNameFilters(filter);
-
-    QStringList list = qdir.entryList();
-    return list;
-}
-
-void CSVHandler::setFile(QString filename) {
-    this->filename = filename;
-    this->filepath = BASEDIR_NAME + filename;
-}
-
-QString CSVHandler::getFilePath() {
-    return this->filepath;
-}
-
-QString CSVHandler::getFileName() {
-    return this->filename;
-}
-
-int CSVHandler::getCSVBytes() {
+int CSVWorker::getCSVBytes() {
     return csvData.size();
 }
 
-int CSVHandler::getSeenEntries() {
+int CSVWorker::getSeenEntries() {
     return this->seenEntries;
 }
 
-int CSVHandler::getSeenSMS() {
+int CSVWorker::getSeenSMS() {
     return this->seenSMS;
 }
 
-void CSVHandler::parseFile() {
+void CSVWorker::run() Q_DECL_OVERRIDE {
+    QString filepath = this->filepath;
+    qDebug() << "CSVWorker::run(" << filepath << ")";
     QList<MessageObject*> messages;
+
     QFile file(filepath);
     file.open(QIODevice::ReadOnly);
 
@@ -82,9 +66,10 @@ void CSVHandler::parseFile() {
         for (int i=0; i<messages.size(); i++) {
             delete messages.at(i);
         }
-}
 
-QList<MessageObject*> CSVHandler::actualParse() {
+    emit parseFileCompleted(messages);
+}
+QList<MessageObject*> CSVWorker::actualParse() {
     int ROW_LENGTH = 17;
 
     MessageObject *msg = new MessageObject();
@@ -245,6 +230,48 @@ QList<MessageObject*> CSVHandler::actualParse() {
     this->seenSMS = messages.size();
     emit seenSMSChanged(messages.size());
     return messages;
+}
+
+CSVHandler::CSVHandler(QObject *parent) :
+    QObject(parent)
+{
+}
+
+QStringList CSVHandler::getCSVFiles() {
+    QStringList filter;
+    filter << "*.csv";
+
+    QDir qdir = QDir(BASEDIR_NAME);
+    qdir.setNameFilters(filter);
+
+    QStringList list = qdir.entryList();
+    return list;
+}
+
+void CSVHandler::setFile(QString filename) {
+    this->filename = filename;
+    this->filepath = BASEDIR_NAME + filename;
+}
+
+QString CSVHandler::getFilePath() {
+    return this->filepath;
+}
+
+QString CSVHandler::getFileName() {
+    return this->filename;
+}
+
+void CSVHandler::parseFile() {
+    qRegisterMetaType<MessageObjectList>("MessageObjectList");
+    qDebug() << "CSVHandler::parseFile() called, registered QList<MessageObject*>";
+    CSVWorker *csvWorker = new CSVWorker(this->getFilePath());
+    connect(csvWorker, &CSVWorker::parseFileCompleted, this, &CSVHandler::insertMessages);
+    connect(csvWorker, &CSVWorker::finished, csvWorker, &QObject::deleteLater);
+    csvWorker->start();
+}
+
+void CSVHandler::insertMessages(QList<MessageObject*> messages) {
+    qDebug() << "Inserting messages:" << messages.size();
 }
 
 quint32 toInt(QString s) {

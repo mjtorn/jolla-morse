@@ -7,10 +7,37 @@
 #include <QDir>
 #include <QList>
 #include <QString>
+#include <QThread>
 
 #ifndef MESSAGEOBJECT_H
 #include "messageobject.h"
 #endif
+
+class CSVWorker : public QThread
+{
+    Q_OBJECT
+private:
+    int seenEntries;
+    int seenSMS;
+    QByteArray csvData;
+    QString filepath;
+    Q_INVOKABLE void run();
+    Q_INVOKABLE QList<MessageObject*> actualParse();
+public:
+    explicit CSVWorker(QString filepath);
+    Q_INVOKABLE int getCSVBytes();
+    Q_INVOKABLE int getSeenEntries();
+    Q_INVOKABLE int getSeenSMS();
+    Q_PROPERTY(int readBytes READ getCSVBytes NOTIFY readBytesChanged);
+    Q_PROPERTY(int seenEntries READ getSeenEntries NOTIFY seenEntriesChanged);
+    Q_PROPERTY(int seenSMS READ getSeenSMS NOTIFY seenSMSChanged);
+signals:
+    void readBytesChanged(int newValue);
+    void seenEntriesChanged(int seenEntries);
+    void seenSMSChanged(int seenSMS);
+    void parseFileCompleted(QList<MessageObject*> messages);
+};
+
 
 class CSVHandler : public QObject
 {
@@ -22,26 +49,14 @@ public:
     Q_INVOKABLE QString getFileName();
     Q_INVOKABLE QString getFilePath();
     Q_INVOKABLE void parseFile();
-    Q_INVOKABLE int getCSVBytes();
-    Q_INVOKABLE int getSeenEntries();
-    Q_INVOKABLE int getSeenSMS();
-    Q_PROPERTY(int readBytes READ getCSVBytes NOTIFY readBytesChanged);
-    Q_PROPERTY(int seenEntries READ getSeenEntries NOTIFY seenEntriesChanged);
-    Q_PROPERTY(int seenSMS READ getSeenSMS NOTIFY seenSMSChanged);
+    Q_INVOKABLE void insertMessages(QList<MessageObject*> messages);
 
 private:
-    int seenEntries;
-    int seenSMS;
-    Q_INVOKABLE QList<MessageObject*> actualParse();
     QString filename;
     QString filepath;
     QFile file;
-    QByteArray csvData;
 
 signals:
-    void readBytesChanged(int newValue);
-    void seenEntriesChanged(int seenEntries);
-    void seenSMSChanged(int seenSMS);
 
 public slots:
 
