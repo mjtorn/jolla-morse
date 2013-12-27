@@ -109,6 +109,62 @@ QList<MessageObject*> CSVHandler::actualParse() {
                         qDebug() << "got type" << cell;
                         msg->eventTypeName = cell;
                         break;
+                    case 3:
+                        msg->isOutgoing = (bool) toInt(cell);
+                        qDebug() << "got outgoing" << msg->isOutgoing;
+                        break;
+                    case 4:
+                        msg->storageTime = toLL(cell);
+                        qDebug() << "got storageTime" << msg->storageTime;
+                        break;
+                    case 5:
+                        msg->startTime = toLL(cell);
+                        qDebug() << "got startTime" << msg->startTime;
+                        break;
+                    case 6:
+                        msg->endTime = toLL(cell);
+                        qDebug() << "got endTime" << msg->endTime;
+                        break;
+                    case 7:
+                        msg->isRead = (bool) toInt(cell);
+                        qDebug() << "got isRead" << msg->isRead;
+                        break;
+                    case 8:
+                        msg->flags = toInt(cell);
+                        qDebug() << "got flags" << msg->flags;
+                        break;
+                    case 9:
+                        msg->bytesSent = toInt(cell);
+                        qDebug() << "got bytesSent" << msg->bytesSent;
+                        break;
+                    case 10:
+                        msg->bytesReceived = toInt(cell);
+                        qDebug() << "got bytesReceived" << msg->bytesReceived;
+                        break;
+                    case 11:
+                        msg->localUID = cell;
+                        qDebug() << "got localUID" << msg->localUID;
+                        break;
+                    case 12:
+                        msg->localName = cell;
+                        qDebug() << "got localName" << msg->localName;
+                        break;
+                    case 13:
+                        msg->remoteUID = cell;
+                        qDebug() << "got remoteUID" << msg->remoteUID;
+                        break;
+                    case 14:
+                        msg->remoteName = cell;
+                        qDebug() << "got remoteName" << msg->remoteName;
+                        break;
+                    case 15:
+                        msg->channel = cell;
+                        qDebug() << "got channel" << msg->channel;
+                        break;
+                    case 16:
+                        msg->freeText = cell;
+                        qDebug() << "got freeText" << msg->freeText;
+                        break;
                     default:
                         qDebug()  << "Unhandled cell count" << seenCells << cell;
                 }
@@ -123,18 +179,21 @@ QList<MessageObject*> CSVHandler::actualParse() {
         } else if (c == '\n') {
             qDebug() << "Hit newline with seenCells" << seenCells << "and cell" << cell;
             if (seenCells == ROW_LENGTH - 1 && csvData.at(i - 1) == '\r' && csvData.at(i - 2) == '"') {
+                if (msg->eventTypeName.compare(SMS_TYPE) == 0) {
+                    msg->groupUID = cell;
+                    qDebug() << "got groupUID" << msg->groupUID;
+                    messages.push_back(msg);
+                } else {
+                    delete msg;
+                }
+                msg = new MessageObject();
+
                 // Do something with the stack
                 // and reset the cells
                 seenCells = 0;
                 inQuotes = false;
                 stack.push_back(cell);
                 cell = "";
-                if (msg->eventTypeName.compare(SMS_TYPE) == 0) {
-                    messages.push_back(msg);
-                } else {
-                    delete msg;
-                }
-                msg = new MessageObject();
             }
         } else if (c == '"') {
             // " is escaped as "", this should work until int overflow.
