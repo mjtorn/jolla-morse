@@ -54,6 +54,12 @@ Page {
                 text: "Read bytes: " + csvhandler.readBytes
                 x: Theme.paddingLarge
             }
+
+            Label {
+                id: entries_label
+                text: "Seen entries: " + csvhandler.seenEntries
+                x: Theme.paddingLarge
+            }
         }
     }
 }
