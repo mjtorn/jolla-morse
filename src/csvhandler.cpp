@@ -233,6 +233,9 @@ MessageObjectList CSVWorker::actualParse() {
 CSVHandler::CSVHandler(QObject *parent) :
     QObject(parent)
 {
+    this->readBytes = 0;
+    this->seenEntries = 0;
+    this->seenSMS = 0;
 }
 
 QStringList CSVHandler::getCSVFiles() {
@@ -259,12 +262,44 @@ QString CSVHandler::getFileName() {
     return this->filename;
 }
 
+void CSVHandler::setReadBytes(int readBytes) {
+    this->readBytes = readBytes;
+    emit readBytesChanged(this->readBytes);
+}
+
+int CSVHandler::getReadBytes() {
+    return this->readBytes;
+}
+
+void CSVHandler::setSeenEntries(int seenEntries) {
+    this->seenEntries = seenEntries;
+    emit seenEntriesChanged(this->seenEntries);
+}
+
+int CSVHandler::getSeenEntries() {
+    return this->seenEntries;
+}
+
+void CSVHandler::setSeenSMS(int seenSMS) {
+    this->seenSMS = seenSMS;
+    emit seenSMSChanged(this->seenSMS);
+}
+
+int CSVHandler::getSeenSMS() {
+    return this->seenSMS;
+}
+
 void CSVHandler::parseFile() {
     qRegisterMetaType<MessageObjectList>("MessageObjectList");
     qDebug() << "CSVHandler::parseFile() called, registered QList<MessageObject*>";
     CSVWorker *csvWorker = new CSVWorker(this->getFilePath());
+    // Required methods
     connect(csvWorker, &CSVWorker::parseFileCompleted, this, &CSVHandler::insertMessages);
     connect(csvWorker, &CSVWorker::finished, csvWorker, &QObject::deleteLater);
+    // Transfer the state to QML
+    connect(csvWorker, &CSVWorker::readBytesChanged, this, &CSVHandler::setReadBytes);
+    connect(csvWorker, &CSVWorker::seenEntriesChanged, this, &CSVHandler::setSeenEntries);
+    connect(csvWorker, &CSVWorker::seenSMSChanged, this, &CSVHandler::setSeenSMS);
     csvWorker->start();
 }
 

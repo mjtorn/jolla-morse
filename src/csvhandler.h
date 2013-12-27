@@ -52,13 +52,28 @@ public:
     Q_INVOKABLE QString getFilePath();
     Q_INVOKABLE void parseFile();
     Q_INVOKABLE void insertMessages(MessageObjectList messages);
+    Q_INVOKABLE int getReadBytes();
+    Q_INVOKABLE int getSeenEntries();
+    Q_INVOKABLE int getSeenSMS();
+    Q_INVOKABLE void setReadBytes(int readBytes);
+    Q_INVOKABLE void setSeenEntries(int seenEntries);
+    Q_INVOKABLE void setSeenSMS(int seenSMS);
+    Q_PROPERTY(int readBytes READ getReadBytes NOTIFY readBytesChanged);
+    Q_PROPERTY(int seenEntries READ getSeenEntries NOTIFY seenEntriesChanged);
+    Q_PROPERTY(int seenSMS READ getSeenSMS NOTIFY seenSMSChanged);
 
 private:
     QString filename;
     QString filepath;
     QFile file;
+    int readBytes;
+    int seenEntries;
+    int seenSMS;
 
 signals:
+    void readBytesChanged(int newValue);
+    void seenEntriesChanged(int seenEntries);
+    void seenSMSChanged(int seenSMS);
 
 public slots:
 
