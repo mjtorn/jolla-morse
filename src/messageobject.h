@@ -16,7 +16,7 @@ public:
     quint64 endTime;
     bool isRead;
     // XXX: Guesswork
-    quint8 flags;
+    quint32 flags;
     quint32 bytesSent;
     quint32 bytesReceived;
     QString localUID;
