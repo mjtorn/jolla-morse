@@ -51,7 +51,7 @@ Page {
 
             Label {
                 id: bytes_label
-                text: csvhandler.readBytes
+                text: "Read bytes: " + csvhandler.readBytes
                 x: Theme.paddingLarge
             }
         }
