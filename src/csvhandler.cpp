@@ -134,7 +134,8 @@ QList<MessageObject*> CSVHandler::actualParse() {
             }
         } else if (c == '"') {
             // " is escaped as "", this should work until int overflow.
-            if (csvData.at(i - 1) == '"') {
+            // Make sure we're not in a ;""; type of situation, though.
+            if (csvData.at(i - 1) == '"' && csvData.at(i - 2) != ';') {
                 quoteDepth++;
                 if (quoteDepth % 2 == 1) {
                     cell.push_back(c);
