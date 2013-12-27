@@ -84,6 +84,7 @@ QList<MessageObject*> CSVHandler::actualParse() {
     bool convOk = false;
     bool inCell = false;
     char c;
+    int quoteDepth = 0;
     int seenCells = 0;
 
     for (int i=0; i<csvData.size(); i++) {
@@ -131,9 +132,17 @@ QList<MessageObject*> CSVHandler::actualParse() {
                 }
                 msg = new MessageObject();
             }
-        // XXX: This check should not suffice, though " is escaped as ""
-        // if the message has """lol""" type of content in it
-        } else if ((c == '"' && csvData.at(i - 1) == '"') || (c != '"')) {
+        } else if (c == '"') {
+            // " is escaped as "", this should work until int overflow.
+            if (csvData.at(i - 1) == '"') {
+                quoteDepth++;
+                if (quoteDepth % 2 == 1) {
+                    cell.push_back(c);
+                }
+            } else {
+                quoteDepth = 0;
+            }
+        } else {
             cell.push_back(c);
         }
     }
