@@ -97,7 +97,7 @@ QList<MessageObject*> CSVHandler::actualParse() {
         }
 
         if (c == ';') {
-            if (quoteDepth == 0 && c1 == '"') {
+            if (c1 == '"' && inQuotes) {
                 inQuotes = false;
             }
 
