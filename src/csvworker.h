@@ -17,7 +17,7 @@ private:
     QByteArray csvData;
     QString filepath;
     Q_INVOKABLE void run();
-    Q_INVOKABLE MessageObjectList actualParse();
+    Q_INVOKABLE MessageList actualParse();
 public:
     explicit CSVWorker(QString filepath);
     Q_INVOKABLE int getCSVBytes();
@@ -30,7 +30,7 @@ signals:
     void readBytesChanged(int newValue);
     void seenEntriesChanged(int seenEntries);
     void seenSMSChanged(int seenSMS);
-    void parseFileCompleted(MessageObjectList messages);
+    void parseFileCompleted(MessageList messages);
 };
 
 quint32 toInt(QString s);

@@ -4,11 +4,11 @@
 #include <QList>
 #include <QObject>
 
-class MessageObject : public QObject
+class Message : public QObject
 {
     Q_OBJECT
 public:
-    explicit MessageObject(QObject *parent = 0);
+    explicit Message(QObject *parent = 0);
     quint32 id;
     QString eventTypeName;
     bool isOutgoing;
@@ -34,6 +34,6 @@ public slots:
 
 };
 
-typedef QList<MessageObject*> MessageObjectList;
+typedef QList<Message*> MessageList;
 
 #endif // MESSAGEOBJECT_H

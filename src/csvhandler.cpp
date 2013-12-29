@@ -87,8 +87,8 @@ void CSVHandler::workerFinished() {
 }
 
 void CSVHandler::parseFile() {
-    qRegisterMetaType<MessageObjectList>("MessageObjectList");
-    qDebug() << "CSVHandler::parseFile() called, registered QList<MessageObject*>";
+    qRegisterMetaType<MessageList>("MessageList");
+    qDebug() << "CSVHandler::parseFile() called, registered QList<Message*>";
     if (!this->workerRunning) {
         this->workerRunning = true;
         CSVWorker *csvWorker = new CSVWorker(this->getFilePath());
@@ -106,7 +106,7 @@ void CSVHandler::parseFile() {
     }
 }
 
-void CSVHandler::insertMessages(MessageObjectList messages) {
+void CSVHandler::insertMessages(MessageList messages) {
     qDebug() << "Inserting messages:" << messages.size();
     // Only debug obviously
     // TODO: Actual functionality!

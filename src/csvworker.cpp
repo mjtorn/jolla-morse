@@ -30,7 +30,7 @@ int CSVWorker::getSeenSMS() {
 void CSVWorker::run() Q_DECL_OVERRIDE {
     QString filepath = this->filepath;
     qDebug() << "CSVWorker::run(" << filepath << ")";
-    MessageObjectList messages;
+    MessageList messages;
 
     QFile file(filepath);
     file.open(QIODevice::ReadOnly);
@@ -60,11 +60,11 @@ void CSVWorker::run() Q_DECL_OVERRIDE {
 
     emit parseFileCompleted(messages);
 }
-MessageObjectList CSVWorker::actualParse() {
+MessageList CSVWorker::actualParse() {
     int ROW_LENGTH = 17;
 
-    MessageObject *msg = new MessageObject();
-    MessageObjectList messages;
+    Message *msg = new Message();
+    MessageList messages;
     QString cell;
     bool inQuotes = false;
     char c;
@@ -192,7 +192,7 @@ MessageObjectList CSVWorker::actualParse() {
                 }
                 this->seenEntries++;
                 emit seenEntriesChanged(this->seenEntries);
-                msg = new MessageObject();
+                msg = new Message();
 
                 // Reset state
                 seenCells = 0;

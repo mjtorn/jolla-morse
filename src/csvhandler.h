@@ -25,7 +25,7 @@ public:
     Q_INVOKABLE QString getFilePath();
     Q_INVOKABLE void workerFinished();
     Q_INVOKABLE void parseFile();
-    Q_INVOKABLE void insertMessages(MessageObjectList messages);
+    Q_INVOKABLE void insertMessages(MessageList messages);
     Q_INVOKABLE int getReadBytes();
     Q_INVOKABLE int getSeenEntries();
     Q_INVOKABLE int getSeenSMS();
