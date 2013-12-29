@@ -12,6 +12,8 @@
 #include "messageobject.h"
 #endif
 
+#include "csvworker.h"
+
 class CSVHandler : public QObject
 {
     Q_OBJECT
@@ -21,6 +23,7 @@ public:
     Q_INVOKABLE void setFile(QString filename);
     Q_INVOKABLE QString getFileName();
     Q_INVOKABLE QString getFilePath();
+    Q_INVOKABLE void workerFinished();
     Q_INVOKABLE void parseFile();
     Q_INVOKABLE void insertMessages(MessageObjectList messages);
     Q_INVOKABLE int getReadBytes();
@@ -39,6 +42,7 @@ private:
     QString filename;
     QString filepath;
     QFile file;
+    bool workerRunning;
     int readBytes;
     int seenEntries;
     int seenSMS;

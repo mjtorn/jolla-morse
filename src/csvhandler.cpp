@@ -18,6 +18,7 @@ CSVHandler::CSVHandler(QObject *parent) :
     QObject(parent)
 {
     // Come from CSVWorker
+    this->workerRunning = false;
     this->readBytes = 0;
     this->seenEntries = 0;
     this->seenSMS = 0;
@@ -81,18 +82,28 @@ int CSVHandler::getInsertedSMS() {
     return this->insertedSMS;
 }
 
+void CSVHandler::workerFinished() {
+    this->workerRunning = false;
+}
+
 void CSVHandler::parseFile() {
     qRegisterMetaType<MessageObjectList>("MessageObjectList");
     qDebug() << "CSVHandler::parseFile() called, registered QList<MessageObject*>";
-    CSVWorker *csvWorker = new CSVWorker(this->getFilePath());
-    // Required methods
-    connect(csvWorker, &CSVWorker::parseFileCompleted, this, &CSVHandler::insertMessages);
-    connect(csvWorker, &CSVWorker::finished, csvWorker, &QObject::deleteLater);
-    // Transfer the state to QML
-    connect(csvWorker, &CSVWorker::readBytesChanged, this, &CSVHandler::setReadBytes);
-    connect(csvWorker, &CSVWorker::seenEntriesChanged, this, &CSVHandler::setSeenEntries);
-    connect(csvWorker, &CSVWorker::seenSMSChanged, this, &CSVHandler::setSeenSMS);
-    csvWorker->start();
+    if (!this->workerRunning) {
+        this->workerRunning = true;
+        CSVWorker *csvWorker = new CSVWorker(this->getFilePath());
+        // Required methods
+        connect(csvWorker, &CSVWorker::parseFileCompleted, this, &CSVHandler::insertMessages);
+        connect(csvWorker, &CSVWorker::finished, csvWorker, &QObject::deleteLater);
+        connect(csvWorker, &CSVWorker::finished, this, &CSVHandler::workerFinished);
+        // Transfer the state to QML
+        connect(csvWorker, &CSVWorker::readBytesChanged, this, &CSVHandler::setReadBytes);
+        connect(csvWorker, &CSVWorker::seenEntriesChanged, this, &CSVHandler::setSeenEntries);
+        connect(csvWorker, &CSVWorker::seenSMSChanged, this, &CSVHandler::setSeenSMS);
+        csvWorker->start();
+    } else {
+        qDebug() << "Refuse to run another thread!";
+    }
 }
 
 void CSVHandler::insertMessages(MessageObjectList messages) {
