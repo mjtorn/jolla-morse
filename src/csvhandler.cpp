@@ -163,36 +163,70 @@ CommHistory::Group CSVHandler::createGroup(QStringList remoteUids) {
 }
 
 QList<CommHistory::Group> CSVHandler::getGroups(MessageList messages) {
-    QSet<QString> seenRemoteUids;
+    QSet<QString> seenRemoteUids; // Keep away duplicate groups
+    QSet<QString> remoteUids;    // These away duplicates UIDs
+    QStringList remoteUidList;  // Actually stored in a group
+    QString joinedRemoteUids;  // I can hash strings
+
+    // These used to deal with message data
+    QString remoteUid;
+    QString freeText;
+    QString nextRemoteUid;
+    QString nextFreeText;
+
     QList<CommHistory::Group> groups;
+
     qDebug() << "Getting groups";
-    for (int i=0; i<messages.size(); i++) {
-        QStringList remoteUids;
-        QString joinedRemoteUids;
 
-        // Start with duplicate checking
-        remoteUids.push_back(messages.at(i)->remoteUID);
-        remoteUids.sort();
-        joinedRemoteUids = remoteUids.join(",");
+    // Check the message body of the next message to see if
+    // we have messages of the same group.
+    for (int i=0; i<messages.size() - 1; i++) {
+        remoteUid = messages.at(i)->remoteUID;
+        freeText = messages.at(i)->freeText;
+        nextRemoteUid = messages.at(i + 1)->remoteUID;
+        nextFreeText = messages.at(i + 1)->freeText;
 
-        if (seenRemoteUids.contains(joinedRemoteUids)) {
-            //qDebug() << "Already seen" << joinedRemoteUids;
-            continue;
+        // Build a stack-like set here
+        remoteUids.insert(remoteUid);
+
+        // Assume same-group messages are in consequent order
+        if (freeText.compare(nextFreeText) != 0) {
+            remoteUidList = remoteUids.toList();
+            remoteUidList.sort();
+            joinedRemoteUids = remoteUidList.join(",");
+
+            if (seenRemoteUids.contains(joinedRemoteUids)) {
+                qDebug() << "Already seen" << joinedRemoteUids;
+                remoteUids = QSet<QString>();
+                continue;
+            }
+
+            seenRemoteUids.insert(joinedRemoteUids);
+
+            CommHistory::Group group = this->createGroup(remoteUidList);
+
+            groups.push_back(group);
+
+            remoteUids = QSet<QString>();
         }
+    }
 
-        seenRemoteUids.insert(joinedRemoteUids);
+    // After the for loop we have one more to take care of
+    nextRemoteUid = messages.last()->remoteUID;
+    nextFreeText = messages.last()->freeText;
 
-        // What? No instances required?
-        CommHistory::Group group;
+    remoteUids.insert(nextRemoteUid);
 
-        // This appears to be the same, at least at the time of the commit
-        group.setLocalUid(GROUP_LOCAL_UID);
+    remoteUidList = remoteUids.toList();
+    remoteUidList.sort();
+    joinedRemoteUids = remoteUidList.join(",");
 
-        // Defaults to 0 as do all on my phone, and Name is NULL
-        group.setChatType(CommHistory::Group::ChatTypeP2P);
-        group.setChatName(NULL);
-
-        group.setRemoteUids(remoteUids);
+    if (seenRemoteUids.contains(joinedRemoteUids)) {
+        qDebug() << "Already seen" << joinedRemoteUids;
+    } else {
+        // No need to bother anymore
+        // seenRemoteUids.insert(joinedRemoteUids);
+        CommHistory::Group group = this->createGroup(remoteUidList);
 
         groups.push_back(group);
     }
