@@ -16,6 +16,14 @@ SMSDATA = (
     ('5', 'joo'),
     ('1', 'jolla'),
     ('2', 'jolla'),
+    ('7', 'seven'), # <- comment out to test group 1,2,4
+    ('4', 'jolla'),
+    ('4', 'other'),
+    ('7', 'other'),
+    ('4', 'other half'),
+    ('7', 'other half'),
+    ('7', 'other side'),
+    ('4', 'other side'),
 )
 
 def main():
