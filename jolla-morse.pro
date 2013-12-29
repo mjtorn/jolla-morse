@@ -29,3 +29,5 @@ HEADERS += \
     src/csvworker.h \
     src/message.h
 
+
+PKGCONFIG += commhistory-qt5
