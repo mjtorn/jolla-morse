@@ -46,6 +46,7 @@ public:
 
 private:
     Q_INVOKABLE QList<CommHistory::Group> getGroups(MessageList messages);
+    Q_INVOKABLE CommHistory::Group createGroup(QStringList remoteUids);
     QString filename;
     QString filepath;
     QFile file;

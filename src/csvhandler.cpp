@@ -144,6 +144,24 @@ void CSVHandler::insertMessages(MessageList messages) {
     }
 }
 
+CommHistory::Group CSVHandler::createGroup(QStringList remoteUids) {
+    qDebug() << "Create group" << remoteUids.join(",");
+
+    // What? No instances required?
+    CommHistory::Group group;
+
+    // This appears to be the same, at least at the time of the commit
+    group.setLocalUid(GROUP_LOCAL_UID);
+
+    // Defaults to 0 as do all on my phone, and Name is NULL
+    group.setChatType(CommHistory::Group::ChatTypeP2P);
+    group.setChatName(NULL);
+
+    group.setRemoteUids(remoteUids);
+
+    return group;
+}
+
 QList<CommHistory::Group> CSVHandler::getGroups(MessageList messages) {
     QSet<QString> seenRemoteUids;
     QList<CommHistory::Group> groups;
