@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QSet>
 #include <QString>
 
 QString FIRST_LINE = QString("\"ID\";\"EventTypes.name\";\"Events.Outgoing\";\"storage_time\";\"start_time\";\"end_time\";\"is_read\";\"flags\";\"bytes_sent\";\"bytes_received\";\"local_uid\";\"local_name\";\"remote_uid\";\"remote_name\";\"channel\";\"free_text\";\"group_uid\"\r\n");
@@ -13,6 +14,7 @@ CSVWorker::CSVWorker(QString filepath) :
     this->filepath = filepath;
     this->seenEntries = 0;
     this->seenSMS = 0;
+    this->seenCSVDuplicates = 0;
 }
 
 int CSVWorker::getCSVBytes() {
@@ -25,6 +27,10 @@ int CSVWorker::getSeenEntries() {
 
 int CSVWorker::getSeenSMS() {
     return this->seenSMS;
+}
+
+int CSVWorker::getSeenCSVDuplicates() {
+    return this->seenCSVDuplicates;
 }
 
 void CSVWorker::run() Q_DECL_OVERRIDE {
@@ -65,6 +71,7 @@ MessageList CSVWorker::actualParse() {
 
     Message *msg = new Message();
     MessageList messages;
+    QSet<quint32> csvIds;
     QString cell;
     bool inQuotes = false;
     char c;
@@ -181,7 +188,14 @@ MessageList CSVWorker::actualParse() {
                 if (msg->eventTypeName.compare(SMS_TYPE) == 0) {
                     msg->groupUID = cell;
                     //qDebug() << "got groupUID" << msg->groupUID;
-                    messages.push_back(msg);
+
+                    if (!csvIds.contains(msg->id)) {
+                        messages.push_back(msg);
+                        csvIds.insert(msg->id);
+                    } else {
+                        this->seenCSVDuplicates++;
+                        emit seenCSVDuplicatesChanged(this->seenCSVDuplicates);
+                    }
                     if (messages.size() % 100 == 0) {
                         this->seenSMS = messages.size();
                         emit seenSMSChanged(messages.size());

@@ -68,6 +68,12 @@ Page {
             }
 
             Label {
+                id: csv_duplicates_label
+                text: "Seen CSV duplicates: " + appWindow.csvhandler.seenCSVDuplicates
+                x: Theme.paddingLarge
+            }
+
+            Label {
                 id: inserted_sms_label
                 text: "Inserted SMS: " + appWindow.csvhandler.insertedSMS
                 x: Theme.paddingLarge

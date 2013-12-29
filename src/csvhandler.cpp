@@ -78,6 +78,15 @@ int CSVHandler::getSeenSMS() {
     return this->seenSMS;
 }
 
+void CSVHandler::setSeenCSVDuplicates(int seenCSVDuplicates) {
+    this->seenCSVDuplicates = seenCSVDuplicates;
+    emit seenCSVDuplicatesChanged(this->seenCSVDuplicates);
+}
+
+int CSVHandler::getSeenCSVDuplicates() {
+    return this->seenCSVDuplicates;
+}
+
 int CSVHandler::getInsertedSMS() {
     return this->insertedSMS;
 }
@@ -105,6 +114,7 @@ void CSVHandler::parseFile() {
         connect(csvWorker, &CSVWorker::readBytesChanged, this, &CSVHandler::setReadBytes);
         connect(csvWorker, &CSVWorker::seenEntriesChanged, this, &CSVHandler::setSeenEntries);
         connect(csvWorker, &CSVWorker::seenSMSChanged, this, &CSVHandler::setSeenSMS);
+        connect(csvWorker, &CSVWorker::seenCSVDuplicatesChanged, this, &CSVHandler::setSeenCSVDuplicates);
         csvWorker->start();
     } else {
         qDebug() << "Refuse to run another thread!";
