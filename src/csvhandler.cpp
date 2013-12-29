@@ -26,6 +26,7 @@ CSVHandler::CSVHandler(QObject *parent) :
     this->seenSMS = 0;
 
     // This is us
+    this->seenGroups = 0;
     this->insertedSMS = 0;
 }
 
@@ -89,6 +90,10 @@ int CSVHandler::getSeenCSVDuplicates() {
     return this->seenCSVDuplicates;
 }
 
+int CSVHandler::getSeenGroups() {
+    return this->seenGroups;
+}
+
 int CSVHandler::getInsertedSMS() {
     return this->insertedSMS;
 }
@@ -106,6 +111,8 @@ void CSVHandler::parseFile() {
         emit insertedSMSChanged(0);
         this->seenCSVDuplicates = 0;
         emit seenCSVDuplicatesChanged(0);
+        this->seenGroups = 0;
+        emit seenGroupsChanged(0);
 
         this->workerRunning = true;
         CSVWorker *csvWorker = new CSVWorker(this->getFilePath());
@@ -231,5 +238,7 @@ QList<CommHistory::Group> CSVHandler::getGroups(MessageList messages) {
         groups.push_back(group);
     }
 
+    this->seenGroups = groups.size();
+    emit seenGroupsChanged(groups.size());
     return groups;
 }

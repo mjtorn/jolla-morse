@@ -34,6 +34,7 @@ public:
     Q_INVOKABLE int getSeenSMS();
     Q_INVOKABLE int getSeenCSVDuplicates();
     Q_INVOKABLE int getInsertedSMS();
+    Q_INVOKABLE int getSeenGroups();
     Q_INVOKABLE void setReadBytes(int readBytes);
     Q_INVOKABLE void setSeenEntries(int seenEntries);
     Q_INVOKABLE void setSeenSMS(int seenSMS);
@@ -43,6 +44,7 @@ public:
     Q_PROPERTY(int seenSMS READ getSeenSMS NOTIFY seenSMSChanged);
     Q_PROPERTY(int seenCSVDuplicates READ getSeenCSVDuplicates NOTIFY seenCSVDuplicatesChanged);
     Q_PROPERTY(int insertedSMS READ getInsertedSMS NOTIFY insertedSMSChanged);
+    Q_PROPERTY(int seenGroups READ getSeenGroups NOTIFY seenGroupsChanged);
 
 private:
     Q_INVOKABLE QList<CommHistory::Group> getGroups(MessageList messages);
@@ -56,12 +58,14 @@ private:
     int seenSMS;
     int seenCSVDuplicates;
     int insertedSMS;
+    int seenGroups;
 
 signals:
     void readBytesChanged(int newValue);
     void seenEntriesChanged(int seenEntries);
     void seenSMSChanged(int seenSMS);
     void seenCSVDuplicatesChanged(int seenCSVDuplicates);
+    void seenGroupsChanged(int seenGroupsChanged);
     void insertedSMSChanged(int insertedSMS);
 
 public slots:
