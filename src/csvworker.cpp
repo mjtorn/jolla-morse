@@ -195,6 +195,7 @@ MessageList CSVWorker::actualParse() {
                     } else {
                         this->seenCSVDuplicates++;
                         emit seenCSVDuplicatesChanged(this->seenCSVDuplicates);
+                        delete msg;
                     }
                     if (messages.size() % 100 == 0) {
                         this->seenSMS = messages.size();
