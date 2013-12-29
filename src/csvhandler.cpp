@@ -1,3 +1,4 @@
+#include "CommHistory/group.h"
 #include "csvhandler.h"
 #include "csvworker.h"
 
@@ -13,6 +14,7 @@
 #include <time.h>
 
 QString BASEDIR_NAME = QString("/etc/mersdk/share/");
+QString GROUP_LOCAL_UID = "/org/freedesktop/Telepathy/Account/ring/tel/account0";
 
 CSVHandler::CSVHandler(QObject *parent) :
     QObject(parent)
@@ -125,8 +127,57 @@ void CSVHandler::parseFile() {
 
 void CSVHandler::insertMessages(MessageList messages) {
     qDebug() << "Inserting messages:" << messages.size();
-    // Only debug obviously
+
     // TODO: Actual functionality!
+
+    // Parse groups
+    QList<CommHistory::Group> groups;
+    groups = this->getGroups(messages);
+    qDebug() << "Got groups:" << groups.size();
+
+    // TODO: Insert groups with group manager
+
     this->insertedSMS = messages.size();
     emit insertedSMSChanged(messages.size());
+    for (int i=0; i<messages.size(); i++) {
+        delete messages.at(i);
+    }
+}
+
+QList<CommHistory::Group> CSVHandler::getGroups(MessageList messages) {
+    QSet<QString> seenRemoteUids;
+    QList<CommHistory::Group> groups;
+    qDebug() << "Getting groups";
+    for (int i=0; i<messages.size(); i++) {
+        QStringList remoteUids;
+        QString joinedRemoteUids;
+
+        // Start with duplicate checking
+        remoteUids.push_back(messages.at(i)->remoteUID);
+        remoteUids.sort();
+        joinedRemoteUids = remoteUids.join(",");
+
+        if (seenRemoteUids.contains(joinedRemoteUids)) {
+            //qDebug() << "Already seen" << joinedRemoteUids;
+            continue;
+        }
+
+        seenRemoteUids.insert(joinedRemoteUids);
+
+        // What? No instances required?
+        CommHistory::Group group;
+
+        // This appears to be the same, at least at the time of the commit
+        group.setLocalUid(GROUP_LOCAL_UID);
+
+        // Defaults to 0 as do all on my phone, and Name is NULL
+        group.setChatType(CommHistory::Group::ChatTypeP2P);
+        group.setChatName(NULL);
+
+        group.setRemoteUids(remoteUids);
+
+        groups.push_back(group);
+    }
+
+    return groups;
 }

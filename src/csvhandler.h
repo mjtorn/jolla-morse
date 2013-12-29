@@ -5,6 +5,7 @@
 #include <QByteArray>
 #include <QFile>
 #include <QDir>
+#include <QList>
 #include <QString>
 #include <QThread>
 
@@ -13,6 +14,8 @@
 #endif
 
 #include "csvworker.h"
+
+#include "CommHistory/group.h"
 
 class CSVHandler : public QObject
 {
@@ -42,6 +45,7 @@ public:
     Q_PROPERTY(int insertedSMS READ getInsertedSMS NOTIFY insertedSMSChanged);
 
 private:
+    Q_INVOKABLE QList<CommHistory::Group> getGroups(MessageList messages);
     QString filename;
     QString filepath;
     QFile file;
