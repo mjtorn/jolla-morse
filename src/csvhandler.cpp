@@ -90,8 +90,13 @@ void CSVHandler::parseFile() {
     qRegisterMetaType<MessageList>("MessageList");
     qDebug() << "CSVHandler::parseFile() called, registered QList<Message*>";
     if (!this->workerRunning) {
+        // This is called when the qml is activated, reset some state
+        this->insertedSMS = 0;
+        emit insertedSMSChanged(0);
+
         this->workerRunning = true;
         CSVWorker *csvWorker = new CSVWorker(this->getFilePath());
+
         // Required methods
         connect(csvWorker, &CSVWorker::parseFileCompleted, this, &CSVHandler::insertMessages);
         connect(csvWorker, &CSVWorker::finished, csvWorker, &QObject::deleteLater);
