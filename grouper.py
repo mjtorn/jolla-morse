@@ -59,9 +59,57 @@ def main():
 
     return 0
 
+def main_fixed():
+    seen_uids = set()
+    uid_set = set()
+    groups = []
+
+    for i in xrange(len(SMSDATA) - 1):
+        uid, txt = SMSDATA[i]
+        next_uid, next_txt = SMSDATA[i + 1]
+
+        uid_set.add(uid)
+
+        if next_txt != txt:
+            uid_stack = list(uid_set)
+            uid_stack.sort()
+            joined_uids = ','.join(uid_stack)
+            if joined_uids in seen_uids:
+                print 'already seen %s' % joined_uids
+                uid_set = set()
+                continue
+
+            seen_uids.add(joined_uids)
+            print 'Create group %s' % joined_uids
+            groups.append(joined_uids)
+            uid_set = set()
+
+    # Handle the last one separate
+    next_uid, next_txt = SMSDATA[-1]
+    uid_set.add(next_uid)
+
+    uid_stack = list(uid_set)
+    uid_stack.sort()
+    joined_uids = ','.join(uid_stack)
+    if joined_uids in seen_uids:
+        print 'already seen %s' % joined_uids
+        uid_set = set()
+    else:
+        seen_uids.add(joined_uids)
+        print 'Create group %s' % joined_uids
+        groups.append(joined_uids)
+
+        uid_set = set()
+
+    print uid_set
+
+    print groups
+
+    return 0
+
 if __name__ == '__main__':
     print SMSDATA
-    sys.exit(main())
+    sys.exit(main_fixed())
 
 # EOF
 
