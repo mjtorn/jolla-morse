@@ -12,12 +12,19 @@ If you answered yes, Morse is your app!
 Just dump your live db using GlogArchive, transfer the file to your phone and open it
 with Morse.
 
-Caveat
-------
+Caveats
+-------
 
 This is highly work in progress. It does not insert messages yet, only converts the CSV
 into intermediary Message objects. I might parse them straight to Jolla's Group and Event
 objects, or I may not.
+
+It requires libcommhistory-qt5-devel.
+
+I have been solidly in the Python + PostgreSQL = Django world for years and years, so
+what little I may have known of c++ is lost. That's more than I can say for QT, which
+I never did before. The code may therefore be amateurish and hacky. Any feedback is
+welcome, especially if it's educational.
 
 Store?
 ------
