@@ -9,7 +9,7 @@
 #include <QThread>
 
 #ifndef MESSAGEOBJECT_H
-#include "messageobject.h"
+#include "message.h"
 #endif
 
 #include "csvworker.h"

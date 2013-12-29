@@ -5,7 +5,7 @@
 #include <QThread>
 
 #ifndef MESSAGEOBJECT_H
-#include "messageobject.h"
+#include "message.h"
 #endif
 
 class CSVWorker : public QThread
