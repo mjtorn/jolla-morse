@@ -145,7 +145,7 @@ void CSVHandler::insertMessages(MessageList messages) {
 }
 
 CommHistory::Group CSVHandler::createGroup(QStringList remoteUids) {
-    qDebug() << "Create group" << remoteUids.join(",");
+    //qDebug() << "Create group" << remoteUids.join(",");
 
     // What? No instances required?
     CommHistory::Group group;
@@ -196,7 +196,7 @@ QList<CommHistory::Group> CSVHandler::getGroups(MessageList messages) {
             joinedRemoteUids = remoteUidList.join(",");
 
             if (seenRemoteUids.contains(joinedRemoteUids)) {
-                qDebug() << "Already seen" << joinedRemoteUids;
+                //qDebug() << "Already seen" << joinedRemoteUids;
                 remoteUids = QSet<QString>();
                 continue;
             }
@@ -222,7 +222,7 @@ QList<CommHistory::Group> CSVHandler::getGroups(MessageList messages) {
     joinedRemoteUids = remoteUidList.join(",");
 
     if (seenRemoteUids.contains(joinedRemoteUids)) {
-        qDebug() << "Already seen" << joinedRemoteUids;
+        //qDebug() << "Already seen" << joinedRemoteUids;
     } else {
         // No need to bother anymore
         // seenRemoteUids.insert(joinedRemoteUids);
