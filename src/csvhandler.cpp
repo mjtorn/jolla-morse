@@ -56,7 +56,7 @@ QString CSVHandler::getFileName() {
 
 void CSVHandler::setReadBytes(int readBytes) {
     this->readBytes = readBytes;
-    emit readBytesChanged(this->readBytes);
+    emit readBytesChanged();
 }
 
 int CSVHandler::getReadBytes() {
@@ -65,7 +65,7 @@ int CSVHandler::getReadBytes() {
 
 void CSVHandler::setSeenEntries(int seenEntries) {
     this->seenEntries = seenEntries;
-    emit seenEntriesChanged(this->seenEntries);
+    emit seenEntriesChanged();
 }
 
 int CSVHandler::getSeenEntries() {
@@ -74,7 +74,7 @@ int CSVHandler::getSeenEntries() {
 
 void CSVHandler::setSeenSMS(int seenSMS) {
     this->seenSMS = seenSMS;
-    emit seenSMSChanged(this->seenSMS);
+    emit seenSMSChanged();
 }
 
 int CSVHandler::getSeenSMS() {
@@ -83,7 +83,7 @@ int CSVHandler::getSeenSMS() {
 
 void CSVHandler::setSeenCSVDuplicates(int seenCSVDuplicates) {
     this->seenCSVDuplicates = seenCSVDuplicates;
-    emit seenCSVDuplicatesChanged(this->seenCSVDuplicates);
+    emit seenCSVDuplicatesChanged();
 }
 
 int CSVHandler::getSeenCSVDuplicates() {
@@ -108,11 +108,11 @@ void CSVHandler::parseFile() {
     if (!this->workerRunning) {
         // This is called when the qml is activated, reset some state
         this->insertedSMS = 0;
-        emit insertedSMSChanged(0);
+        emit insertedSMSChanged();
         this->seenCSVDuplicates = 0;
-        emit seenCSVDuplicatesChanged(0);
+        emit seenCSVDuplicatesChanged();
         this->seenGroups = 0;
-        emit seenGroupsChanged(0);
+        emit seenGroupsChanged();
 
         this->workerRunning = true;
         CSVWorker *csvWorker = new CSVWorker(this->getFilePath());
@@ -145,7 +145,7 @@ void CSVHandler::insertMessages(MessageList messages) {
     // TODO: Insert groups with group manager
 
     this->insertedSMS = messages.size();
-    emit insertedSMSChanged(messages.size());
+    emit insertedSMSChanged();
     for (int i=0; i<messages.size(); i++) {
         delete messages.at(i);
     }
@@ -239,6 +239,6 @@ QList<CommHistory::Group> CSVHandler::getGroups(MessageList messages) {
     }
 
     this->seenGroups = groups.size();
-    emit seenGroupsChanged(groups.size());
+    emit seenGroupsChanged();
     return groups;
 }

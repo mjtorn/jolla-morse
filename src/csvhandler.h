@@ -61,12 +61,12 @@ private:
     int seenGroups;
 
 signals:
-    void readBytesChanged(int newValue);
-    void seenEntriesChanged(int seenEntries);
-    void seenSMSChanged(int seenSMS);
-    void seenCSVDuplicatesChanged(int seenCSVDuplicates);
-    void seenGroupsChanged(int seenGroupsChanged);
-    void insertedSMSChanged(int insertedSMS);
+    void readBytesChanged();
+    void seenEntriesChanged();
+    void seenSMSChanged();
+    void seenCSVDuplicatesChanged();
+    void seenGroupsChanged();
+    void insertedSMSChanged();
 
 public slots:
 
