@@ -197,7 +197,7 @@ MessageList CSVWorker::actualParse() {
                     if (messages.size() % 100 == 0) {
                         this->seenSMS = messages.size();
                         emit seenSMSChanged(messages.size());
-                        usleep(50 * 1000); // Sleep 50ms to make sure this works
+                        usleep(10 * 1000); // Sleep 10ms to make sure this works
                     }
                 } else {
                     delete msg;
