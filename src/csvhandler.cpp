@@ -102,6 +102,8 @@ void CSVHandler::parseFile() {
         // This is called when the qml is activated, reset some state
         this->insertedSMS = 0;
         emit insertedSMSChanged(0);
+        this->seenCSVDuplicates = 0;
+        emit seenCSVDuplicatesChanged(0);
 
         this->workerRunning = true;
         CSVWorker *csvWorker = new CSVWorker(this->getFilePath());
