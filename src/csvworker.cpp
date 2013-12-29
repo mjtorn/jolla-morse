@@ -13,7 +13,6 @@ CSVWorker::CSVWorker(QString filepath) :
 {
     this->filepath = filepath;
     this->seenEntries = 0;
-    this->seenSMS = 0;
     this->seenCSVDuplicates = 0;
 }
 
@@ -195,7 +194,6 @@ MessageList CSVWorker::actualParse() {
                         delete msg;
                     }
                     if (messages.size() % 100 == 0) {
-                        this->seenSMS = messages.size();
                         emit seenSMSChanged(messages.size());
                         usleep(10 * 1000); // Sleep 10ms to make sure this works
                     }
@@ -231,7 +229,6 @@ MessageList CSVWorker::actualParse() {
         }
     }
     //qDebug() << seenCells;
-    this->seenSMS = messages.size();
     emit seenSMSChanged(messages.size());
     return messages;
 }
