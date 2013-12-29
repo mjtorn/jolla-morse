@@ -8,8 +8,6 @@
 #include "messageobject.h"
 #endif
 
-typedef QList<MessageObject*> MessageObjectList;
-
 class CSVWorker : public QThread
 {
     Q_OBJECT

@@ -6,7 +6,6 @@
 #include <QIODevice>
 #include <QDir>
 #include <QFile>
-#include <QList>
 #include <QMetaType>
 #include <QString>
 #include <QThread>

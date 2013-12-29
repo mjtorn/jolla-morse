@@ -5,15 +5,12 @@
 #include <QByteArray>
 #include <QFile>
 #include <QDir>
-#include <QList>
 #include <QString>
 #include <QThread>
 
 #ifndef MESSAGEOBJECT_H
 #include "messageobject.h"
 #endif
-
-typedef QList<MessageObject*> MessageObjectList;
 
 class CSVHandler : public QObject
 {

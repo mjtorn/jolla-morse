@@ -1,6 +1,7 @@
 #ifndef MESSAGEOBJECT_H
 #define MESSAGEOBJECT_H
 
+#include <QList>
 #include <QObject>
 
 class MessageObject : public QObject
@@ -32,5 +33,7 @@ signals:
 public slots:
 
 };
+
+typedef QList<MessageObject*> MessageObjectList;
 
 #endif // MESSAGEOBJECT_H
