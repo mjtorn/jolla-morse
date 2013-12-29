@@ -60,9 +60,6 @@ void CSVWorker::run() Q_DECL_OVERRIDE {
 
     end:
         file.close();
-        for (int i=0; i<messages.size(); i++) {
-            delete messages.at(i);
-        }
 
     emit parseFileCompleted(messages);
 }
