@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QHash>
 #include <QSet>
 #include <QString>
 
@@ -75,6 +76,10 @@ MessageList CSVWorker::actualParse() {
     char c2;
     int quoteDepth = 0;
     int seenCells = 0;
+    int rowNum = 0;
+
+    // Some entries don't have "remote_uid" so they must be resolved through "group_uid"
+    QHash<QString, QString> groupUidMap;
 
     for (int i=0; i<csvData.size(); i++) {
         c = csvData.at(i);
@@ -179,12 +184,19 @@ MessageList CSVWorker::actualParse() {
                 cell = "";
             }
         } else if (c == '\n') {
+            rowNum++;
             //qDebug() << "Hit newline with seenCells" << seenCells << "and cell" << cell;
             if (seenCells == ROW_LENGTH - 1 && c1 == '\r' && c2 == '"') {
                 if (msg->eventTypeName.compare(SMS_TYPE) == 0) {
                     msg->groupUID = cell;
                     //qDebug() << "got groupUID" << msg->groupUID;
 
+                    // Don't insert empty remote uids or such into map
+                    if (msg->remoteUID.compare(QString("")) != 0 && !groupUidMap.contains(msg->groupUID)) {
+                        groupUidMap.insert(msg->groupUID, msg->remoteUID);
+                    }
+
+                    //qDebug() << rowNum + 1 << msg->id << msg->remoteUID << msg->freeText;
                     if (!csvIds.contains(msg->id)) {
                         messages.push_back(msg);
                         csvIds.insert(msg->id);
@@ -227,6 +239,18 @@ MessageList CSVWorker::actualParse() {
         } else {
             cell.push_back(c);
         }
+    }
+    // Resolve the missing ones
+    //qDebug() << "keys in map" << groupUidMap.uniqueKeys().size();
+    for (int i=0; i<messages.size(); i++) {
+        if (messages.at(i)->remoteUID.compare(QString("")) == 0) {
+            //qDebug() << "Found empty" << messages.at(i)->id;
+            QString remoteUid = groupUidMap.value(messages.at(i)->groupUID);
+            //qDebug() << remoteUid << "for" << messages.at(i)->groupUID;
+            messages.at(i)->remoteUID = remoteUid;
+        }
+        // XXX: This char* thing is probably bad :D
+        Q_ASSERT_X(messages.at(i)->remoteUID.compare(QString("")) != 0, (char*)messages.at(i)->id, "empty remoteUID");
     }
     //qDebug() << seenCells;
     emit seenSMSChanged(messages.size());
