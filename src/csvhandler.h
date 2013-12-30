@@ -37,6 +37,7 @@ public:
     Q_INVOKABLE int getSeenCSVDuplicates();
     Q_INVOKABLE int getSeenGroups();
     Q_INVOKABLE int getNewGroups();
+    Q_INVOKABLE int getDuplicateSMS();
     Q_INVOKABLE int getInsertedSMS();
     Q_INVOKABLE void setReadBytes(int readBytes);
     Q_INVOKABLE void setSeenEntries(int seenEntries);
@@ -44,6 +45,7 @@ public:
     Q_INVOKABLE void setSeenCSVDuplicates(int seenCSVDuplicates);
     Q_INVOKABLE void setSeenGroups(int seenGroups);
     Q_INVOKABLE void setNewGroups(int newGroups);
+    Q_INVOKABLE void setDuplicateSMS(int seenSMS);
     Q_INVOKABLE void setInsertedSMS(int insertedSMS);
     Q_PROPERTY(int readBytes READ getReadBytes NOTIFY readBytesChanged);
     Q_PROPERTY(int seenEntries READ getSeenEntries NOTIFY seenEntriesChanged);
@@ -51,6 +53,7 @@ public:
     Q_PROPERTY(int seenCSVDuplicates READ getSeenCSVDuplicates NOTIFY seenCSVDuplicatesChanged);
     Q_PROPERTY(int seenGroups READ getSeenGroups NOTIFY seenGroupsChanged);
     Q_PROPERTY(int newGroups READ getNewGroups NOTIFY newGroupsChanged);
+    Q_PROPERTY(int duplicateSMS READ getDuplicateSMS NOTIFY duplicateSMSChanged);
     Q_PROPERTY(int insertedSMS READ getInsertedSMS NOTIFY insertedSMSChanged);
 
 private:
@@ -65,6 +68,7 @@ private:
     int seenCSVDuplicates;
     int seenGroups;
     int newGroups;
+    int duplicateSMS;
     int insertedSMS;
 
 signals:
@@ -74,6 +78,7 @@ signals:
     void seenCSVDuplicatesChanged();
     void seenGroupsChanged();
     void newGroupsChanged();
+    void duplicateSMSChanged();
     void insertedSMSChanged();
 
 public slots:

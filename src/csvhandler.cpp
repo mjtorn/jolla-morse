@@ -27,6 +27,7 @@ CSVHandler::CSVHandler(QObject *parent) :
 
     // And this from inserting
     this->seenGroups = 0;
+    this->duplicateSMS = 0;
     this->insertedSMS = 0;
     this->insertRunning = false;
 }
@@ -109,6 +110,15 @@ int CSVHandler::getNewGroups() {
     return this->newGroups;
 }
 
+void CSVHandler::setDuplicateSMS(int duplicateSMS) {
+    this->duplicateSMS = duplicateSMS;
+    emit duplicateSMSChanged();
+}
+
+int CSVHandler::getDuplicateSMS() {
+    return this->duplicateSMS;
+}
+
 void CSVHandler::setInsertedSMS(int insertedSMS) {
     this->insertedSMS = insertedSMS;
     emit insertedSMSChanged();
@@ -135,6 +145,7 @@ void CSVHandler::parseFile() {
         this->setSeenCSVDuplicates(0);
         this->setSeenGroups(0);
         this->setNewGroups(0);
+        this->setDuplicateSMS(0);
         this->setInsertedSMS(0);
 
         this->workerRunning = true;
@@ -168,6 +179,7 @@ void CSVHandler::insertMessages(MessageList messages) {
         // Relay state to qml
         connect(insertWorker, &InsertWorker::seenGroupsChanged, this, &CSVHandler::setSeenGroups);
         connect(insertWorker, &InsertWorker::newGroupsChanged, this, &CSVHandler::setNewGroups);
+        connect(insertWorker, &InsertWorker::duplicateSMSChanged, this, &CSVHandler::setDuplicateSMS);
         connect(insertWorker, &InsertWorker::insertedSMSChanged, this, &CSVHandler::setInsertedSMS);
         insertWorker->start();
     } else {
