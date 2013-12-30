@@ -1,7 +1,6 @@
-#include "CommHistory/group.h"
-#include "CommHistory/groupmodel.h"
 #include "csvhandler.h"
 #include "csvworker.h"
+#include "insertworker.h"
 
 #include <QDebug>
 #include <QByteArray>
@@ -16,7 +15,6 @@
 #include <time.h>
 
 QString BASEDIR_NAME = QString("/etc/mersdk/share/");
-QString GROUP_LOCAL_UID = "/org/freedesktop/Telepathy/Account/ring/tel/account0";
 
 CSVHandler::CSVHandler(QObject *parent) :
     QObject(parent)
@@ -27,9 +25,10 @@ CSVHandler::CSVHandler(QObject *parent) :
     this->seenEntries = 0;
     this->seenSMS = 0;
 
-    // This is us
+    // And this from inserting
     this->seenGroups = 0;
     this->insertedSMS = 0;
+    this->insertRunning = false;
 }
 
 QStringList CSVHandler::getCSVFiles() {
@@ -92,12 +91,27 @@ int CSVHandler::getSeenCSVDuplicates() {
     return this->seenCSVDuplicates;
 }
 
+void CSVHandler::setSeenGroups(int seenGroups) {
+    this->seenGroups = seenGroups;
+    emit seenGroupsChanged();
+}
+
 int CSVHandler::getSeenGroups() {
     return this->seenGroups;
 }
 
+void CSVHandler::setNewGroups(int newGroups) {
+    this->newGroups = newGroups;
+    emit newGroupsChanged();
+}
+
 int CSVHandler::getNewGroups() {
     return this->newGroups;
+}
+
+void CSVHandler::setInsertedSMS(int insertedSMS) {
+    this->insertedSMS = insertedSMS;
+    emit insertedSMSChanged();
 }
 
 int CSVHandler::getInsertedSMS() {
@@ -106,6 +120,10 @@ int CSVHandler::getInsertedSMS() {
 
 void CSVHandler::workerFinished() {
     this->workerRunning = false;
+}
+
+void CSVHandler::insertFinished() {
+    this->insertRunning = false;
 }
 
 void CSVHandler::parseFile() {
@@ -118,8 +136,9 @@ void CSVHandler::parseFile() {
         this->seenCSVDuplicates = 0;
         emit seenCSVDuplicatesChanged();
         this->seenGroups = 0;
-        this->newGroups = 0;
         emit seenGroupsChanged();
+        this->newGroups = 0;
+        emit newGroupsChanged();
 
         this->workerRunning = true;
         CSVWorker *csvWorker = new CSVWorker(this->getFilePath());
@@ -142,133 +161,24 @@ void CSVHandler::parseFile() {
 void CSVHandler::insertMessages(MessageList messages) {
     qDebug() << "Inserting messages:" << messages.size();
 
-    // TODO: Actual functionality!
+    if (!this->insertRunning) {
+        // This is called when the qml is activated, reset some state
+        this->setSeenGroups(0);
+        this->setNewGroups(0);
+        this->setInsertedSMS(0);
 
-    // Parse groups
-    QMultiHash<QString, Message*> groups;
-    groups = this->getGrouped(messages);
-    QStringList groupUidList;
-    QStringList keys = groups.uniqueKeys();
-    QSet<QString> keySet;
+        this->insertRunning = true;
+        InsertWorker *insertWorker = new InsertWorker(messages);
 
-    qDebug() << "Got groups:" << keys.size();
-
-    // Be nice with the db, don't hammer it to death
-    CommHistory::GroupModel groupModel;
-    QList<CommHistory::Group> dbGroups;
-    bool dbSuccess = groupModel.getGroups(GROUP_LOCAL_UID, QString(""));
-    if (!dbSuccess) {
-        qCritical() << "Failed to get groups";
-        return;
+        // Required methods
+        connect(insertWorker, &InsertWorker::finished, insertWorker, &QObject::deleteLater);
+        connect(insertWorker, &InsertWorker::finished, this, &CSVHandler::insertFinished);
+        // Relay state to qml
+        connect(insertWorker, &InsertWorker::seenGroupsChanged, this, &CSVHandler::setSeenGroups);
+        connect(insertWorker, &InsertWorker::newGroupsChanged, this, &CSVHandler::setNewGroups);
+        connect(insertWorker, &InsertWorker::insertedSMSChanged, this, &CSVHandler::setInsertedSMS);
+        insertWorker->start();
+    } else {
+        qDebug() << "Refuse to run another thread!";
     }
-
-    CommHistory::Group dbGroup;
-    QSet<QString> dbGroupRemoteUids; // This is all of them
-    QStringList groupUids; // This is loop-local
-    for (int i=0; i<groupModel.rowCount(); i++) {
-        // Assume uniqueness
-        dbGroup = groupModel.group(groupModel.index(i, 0));
-        groupUids = dbGroup.remoteUids();
-        groupUids.sort();
-        dbGroupRemoteUids.insert(groupUids.join(","));
-    }
-    //qDebug() << "found in db" << dbGroupRemoteUids;
-
-    // Then do a similar set of our own stuff
-    for (int i=0; i<keys.size(); i++) {
-        keySet.insert(keys.at(i));
-    }
-    //qDebug() << "found in csv" << keySet;
-
-    QSet<QString> diff;
-    diff = keySet.subtract(dbGroupRemoteUids);
-    //qDebug() << "difference set" << diff;
-
-    // There will be no race condition on your phone :<
-    QList<CommHistory::Group> newGroups;
-    foreach (QString toCreateUids, diff) {
-        CommHistory::Group group = this->createGroup(toCreateUids.split(","));
-        newGroups.push_back(group);
-    }
-
-    this->insertedSMS = messages.size();
-    emit insertedSMSChanged();
-    for (int i=0; i<messages.size(); i++) {
-        delete messages.at(i);
-    }
-}
-
-CommHistory::Group CSVHandler::createGroup(QStringList remoteUids) {
-    //qDebug() << "Creating" << remoteUids;
-
-    CommHistory::GroupModel groupModel;
-
-    CommHistory::Group group;
-
-    // This appears to be the same, at least at the time of the commit
-    group.setLocalUid(GROUP_LOCAL_UID);
-
-    // Defaults to 0 as do all on my phone, and Name is NULL
-    group.setChatType(CommHistory::Group::ChatTypeP2P);
-    group.setChatName(NULL);
-
-    group.setRemoteUids(remoteUids);
-
-    groupModel.addGroup(group);
-
-    return group;
-}
-
-QMultiHash<QString, Message*> CSVHandler::getGrouped(MessageList messages) {
-    QSet<QString> remoteUids;    // These take out duplicate UIDs
-    QStringList remoteUidList;  // Actually stored in a group
-    QString joinedRemoteUids;  // I can hash strings
-
-    // These used to deal with message data
-    QString remoteUid;
-    QString freeText;
-    QString nextRemoteUid;
-    QString nextFreeText;
-
-    QMultiHash<QString, Message*> groups;
-
-    qDebug() << "Getting groups";
-
-    // Check the message body of the next message to see if
-    // we have messages of the same group.
-    for (int i=0; i<messages.size() - 1; i++) {
-        remoteUid = messages.at(i)->remoteUID;
-        freeText = messages.at(i)->freeText;
-        nextRemoteUid = messages.at(i + 1)->remoteUID;
-        nextFreeText = messages.at(i + 1)->freeText;
-
-        // Build a stack-like set here
-        remoteUids.insert(remoteUid);
-
-        // Assume same-group messages are in consequent order
-        if (freeText.compare(nextFreeText) != 0) {
-            remoteUidList = remoteUids.toList();
-            remoteUidList.sort();
-            joinedRemoteUids = remoteUidList.join(",");
-
-            groups.insert(joinedRemoteUids, messages.at(i));
-            remoteUids = QSet<QString>();
-        }
-    }
-
-    // After the for loop we have one more to take care of
-    nextRemoteUid = messages.last()->remoteUID;
-    nextFreeText = messages.last()->freeText;
-
-    remoteUids.insert(nextRemoteUid);
-
-    remoteUidList = remoteUids.toList();
-    remoteUidList.sort();
-    joinedRemoteUids = remoteUidList.join(",");
-
-    groups.insert(joinedRemoteUids, messages.last());
-
-    this->seenGroups = groups.uniqueKeys().size();
-    emit seenGroupsChanged();
-    return groups;
 }

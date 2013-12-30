@@ -28,19 +28,23 @@ public:
     Q_INVOKABLE QString getFileName();
     Q_INVOKABLE QString getFilePath();
     Q_INVOKABLE void workerFinished();
+    Q_INVOKABLE void insertFinished();
     Q_INVOKABLE void parseFile();
     Q_INVOKABLE void insertMessages(MessageList messages);
     Q_INVOKABLE int getReadBytes();
     Q_INVOKABLE int getSeenEntries();
     Q_INVOKABLE int getSeenSMS();
     Q_INVOKABLE int getSeenCSVDuplicates();
-    Q_INVOKABLE int getInsertedSMS();
     Q_INVOKABLE int getSeenGroups();
     Q_INVOKABLE int getNewGroups();
+    Q_INVOKABLE int getInsertedSMS();
     Q_INVOKABLE void setReadBytes(int readBytes);
     Q_INVOKABLE void setSeenEntries(int seenEntries);
     Q_INVOKABLE void setSeenSMS(int seenSMS);
     Q_INVOKABLE void setSeenCSVDuplicates(int seenCSVDuplicates);
+    Q_INVOKABLE void setSeenGroups(int seenGroups);
+    Q_INVOKABLE void setNewGroups(int newGroups);
+    Q_INVOKABLE void setInsertedSMS(int insertedSMS);
     Q_PROPERTY(int readBytes READ getReadBytes NOTIFY readBytesChanged);
     Q_PROPERTY(int seenEntries READ getSeenEntries NOTIFY seenEntriesChanged);
     Q_PROPERTY(int seenSMS READ getSeenSMS NOTIFY seenSMSChanged);
@@ -50,12 +54,11 @@ public:
     Q_PROPERTY(int insertedSMS READ getInsertedSMS NOTIFY insertedSMSChanged);
 
 private:
-    Q_INVOKABLE QMultiHash<QString, Message*> getGrouped(MessageList messages);
-    Q_INVOKABLE CommHistory::Group createGroup(QStringList remoteUids);
     QString filename;
     QString filepath;
     QFile file;
     bool workerRunning;
+    bool insertRunning;
     int readBytes;
     int seenEntries;
     int seenSMS;
