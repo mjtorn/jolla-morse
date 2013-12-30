@@ -12,6 +12,21 @@ If you answered yes, Morse is your app!
 Just dump your live db using GlogArchive, transfer the file to your phone and open it
 with Morse.
 
+TODO
+----
+
+It would appear every phone number is its own remoteUid. When an SMS is sent to, say, two
+people, it would appear a group is created containing their numbers. It's probably safe
+to assume the separate numbers are also created as groups.
+
+When querying commhistory.db, table Groups, it's quite clear the three groups do exist.
+
+Querying the table Events, eg. WHERE groupId IN (4, 19, 20); you see the two unique
+remoteUid values and one without a remoteUid value. The one without a value is related
+to the Group with both numbers.
+
+Morse is still probably broken wrt that and it does not insert messages yet.
+
 Caveats
 -------
 
