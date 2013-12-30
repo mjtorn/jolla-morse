@@ -1,4 +1,5 @@
 #include "CommHistory/group.h"
+#include "CommHistory/groupmodel.h"
 #include "csvhandler.h"
 #include "csvworker.h"
 
@@ -150,7 +151,7 @@ void CSVHandler::insertMessages(MessageList messages) {
 
     for (int i=0; i<keys.size(); i++) {
         groupUidList = keys.at(i).split(",");
-        CommHistory::Group group = this->createGroup(groupUidList);
+        CommHistory::Group group = this->getOrCreateGroup(groupUidList);
         //qDebug() << i << keys.at(i) << groups.values(keys.at(i)).size();
     }
 
@@ -161,10 +162,11 @@ void CSVHandler::insertMessages(MessageList messages) {
     }
 }
 
-CommHistory::Group CSVHandler::createGroup(QStringList remoteUids) {
-    //qDebug() << "Create group" << remoteUids.join(",");
+CommHistory::Group CSVHandler::getOrCreateGroup(QStringList remoteUids) {
+    //qDebug() << "Get or create group" << remoteUids.join(",");
 
-    // What? No instances required?
+    CommHistory::GroupModel groupModel;
+
     CommHistory::Group group;
 
     // This appears to be the same, at least at the time of the commit
@@ -175,6 +177,34 @@ CommHistory::Group CSVHandler::createGroup(QStringList remoteUids) {
     group.setChatName(NULL);
 
     group.setRemoteUids(remoteUids);
+
+    // The Group api does not allow to query for all the remoteUids as QStringList
+    // so this hack needs to be here...
+    QString groupRemoteUids; // if (!remoteUid.isEmpty()) q += "Groups.remoteUids = :remoteUid ";
+    QStringList groupRemoteUidKeys;
+    CommHistory::Group dbGroup;
+
+    groupRemoteUidKeys = group.remoteUids();
+    groupRemoteUidKeys.sort();
+    groupRemoteUids = groupRemoteUidKeys.join("\n");
+    // The signature is bool, it updates its state
+    if (!groupModel.getGroups(group.localUid(), groupRemoteUids)) {
+        // TODO: error handling
+        qCritical() << "ERROR!";
+    } else {
+        // These should be guaranteed uniqueness
+        int count = groupModel.rowCount();
+        //qDebug() << "found" << count << "entries for" << remoteUids.join("|");
+        Q_ASSERT_X(count < 2, "checking groups", "too many!");
+
+        if (count == 0) {
+            groupModel.addGroup(group);
+            //qDebug() << "No match, added with" << group.id() << group.toString();
+        } else {
+            dbGroup = groupModel.group(groupModel.index(0, 0));
+            //qDebug() << "Match!" << dbGroup.toString();
+        }
+    }
 
     return group;
 }

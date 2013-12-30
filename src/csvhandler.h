@@ -49,7 +49,7 @@ public:
 
 private:
     Q_INVOKABLE QMultiHash<QString, Message*> getGrouped(MessageList messages);
-    Q_INVOKABLE CommHistory::Group createGroup(QStringList remoteUids);
+    Q_INVOKABLE CommHistory::Group getOrCreateGroup(QStringList remoteUids);
     QString filename;
     QString filepath;
     QFile file;
