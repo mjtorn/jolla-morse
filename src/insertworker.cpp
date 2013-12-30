@@ -92,8 +92,8 @@ CommHistory::Group InsertWorker::createGroup(QStringList remoteUids) {
     return group;
 }
 
-void InsertWorker::run() {
-    MessageList messages = this->messages;
+QSet<QString> InsertWorker::handleGroups(MessageList messages) {
+    QSet<QString> dbGroupRemoteUids; // This is all of them, our return value
 
     // Parse groups
     QMultiHash<QString, Message*> groups;
@@ -111,11 +111,10 @@ void InsertWorker::run() {
     if (!dbSuccess) {
         qCritical() << "Failed to get groups";
         emit newGroupsChanged(-1);
-        return;
+        return dbGroupRemoteUids;
     }
 
     CommHistory::Group dbGroup;
-    QSet<QString> dbGroupRemoteUids; // This is all of them
     QStringList groupUids; // This is loop-local
     for (int i=0; i<groupModel.rowCount(); i++) {
         // Assume uniqueness
@@ -152,6 +151,14 @@ void InsertWorker::run() {
         dbGroupRemoteUids.insert(groupUids.join(","));
     }
     emit newGroupsChanged(newGroups.size());
+
+    return dbGroupRemoteUids;
+}
+
+void InsertWorker::run() {
+    MessageList messages = this->messages;
+
+    QSet<QString> dbGroupRemoteUids = this->handleGroups(messages);
 
     // TODO: Actual insertion
     emit insertedSMSChanged(messages.size());

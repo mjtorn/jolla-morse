@@ -2,6 +2,7 @@
 #define INSERTWORKER_H
 
 #include <QMultiHash>
+#include <QSet>
 #include <QString>
 #include <QThread>
 #include <QObject>
@@ -16,6 +17,7 @@ private:
     Q_INVOKABLE void run();
     Q_INVOKABLE QMultiHash<QString, Message*> getGrouped(MessageList messages);
     Q_INVOKABLE CommHistory::Group createGroup(QStringList remoteUids);
+    Q_INVOKABLE QSet<QString> handleGroups(MessageList messages);
     MessageList messages;
 
 public:
