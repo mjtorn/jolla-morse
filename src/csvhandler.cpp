@@ -96,6 +96,10 @@ int CSVHandler::getSeenGroups() {
     return this->seenGroups;
 }
 
+int CSVHandler::getNewGroups() {
+    return this->newGroups;
+}
+
 int CSVHandler::getInsertedSMS() {
     return this->insertedSMS;
 }
@@ -114,6 +118,7 @@ void CSVHandler::parseFile() {
         this->seenCSVDuplicates = 0;
         emit seenCSVDuplicatesChanged();
         this->seenGroups = 0;
+        this->newGroups = 0;
         emit seenGroupsChanged();
 
         this->workerRunning = true;

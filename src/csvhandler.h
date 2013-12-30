@@ -36,6 +36,7 @@ public:
     Q_INVOKABLE int getSeenCSVDuplicates();
     Q_INVOKABLE int getInsertedSMS();
     Q_INVOKABLE int getSeenGroups();
+    Q_INVOKABLE int getNewGroups();
     Q_INVOKABLE void setReadBytes(int readBytes);
     Q_INVOKABLE void setSeenEntries(int seenEntries);
     Q_INVOKABLE void setSeenSMS(int seenSMS);
@@ -44,8 +45,9 @@ public:
     Q_PROPERTY(int seenEntries READ getSeenEntries NOTIFY seenEntriesChanged);
     Q_PROPERTY(int seenSMS READ getSeenSMS NOTIFY seenSMSChanged);
     Q_PROPERTY(int seenCSVDuplicates READ getSeenCSVDuplicates NOTIFY seenCSVDuplicatesChanged);
-    Q_PROPERTY(int insertedSMS READ getInsertedSMS NOTIFY insertedSMSChanged);
     Q_PROPERTY(int seenGroups READ getSeenGroups NOTIFY seenGroupsChanged);
+    Q_PROPERTY(int newGroups READ getNewGroups NOTIFY newGroupsChanged);
+    Q_PROPERTY(int insertedSMS READ getInsertedSMS NOTIFY insertedSMSChanged);
 
 private:
     Q_INVOKABLE QMultiHash<QString, Message*> getGrouped(MessageList messages);
@@ -58,8 +60,9 @@ private:
     int seenEntries;
     int seenSMS;
     int seenCSVDuplicates;
-    int insertedSMS;
     int seenGroups;
+    int newGroups;
+    int insertedSMS;
 
 signals:
     void readBytesChanged();
@@ -67,6 +70,7 @@ signals:
     void seenSMSChanged();
     void seenCSVDuplicatesChanged();
     void seenGroupsChanged();
+    void newGroupsChanged();
     void insertedSMSChanged();
 
 public slots:

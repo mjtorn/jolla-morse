@@ -80,6 +80,12 @@ Page {
             }
 
             Label {
+                id: new_groups_label
+                text: "New groups: " + appWindow.csvhandler.newGroups
+                x: Theme.paddingLarge
+            }
+
+            Label {
                 id: inserted_sms_label
                 text: "Inserted SMS: " + appWindow.csvhandler.insertedSMS
                 x: Theme.paddingLarge
