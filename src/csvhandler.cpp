@@ -144,15 +144,46 @@ void CSVHandler::insertMessages(MessageList messages) {
     groups = this->getGrouped(messages);
     QStringList groupUidList;
     QStringList keys = groups.uniqueKeys();
+    QSet<QString> keySet;
 
     qDebug() << "Got groups:" << keys.size();
 
-    // TODO: Insert groups with group manager
+    // Be nice with the db, don't hammer it to death
+    CommHistory::GroupModel groupModel;
+    QList<CommHistory::Group> dbGroups;
+    bool dbSuccess = groupModel.getGroups(GROUP_LOCAL_UID, QString(""));
+    if (!dbSuccess) {
+        qCritical() << "Failed to get groups";
+        return;
+    }
 
+    CommHistory::Group dbGroup;
+    QSet<QString> dbGroupRemoteUids; // This is all of them
+    QStringList groupUids; // This is loop-local
+    for (int i=0; i<groupModel.rowCount(); i++) {
+        // Assume uniqueness
+        dbGroup = groupModel.group(groupModel.index(i, 0));
+        groupUids = dbGroup.remoteUids();
+        groupUids.sort();
+        dbGroupRemoteUids.insert(groupUids.join(","));
+    }
+    //qDebug() << "found in db" << dbGroupRemoteUids;
+
+    // Then do a similar set of our own stuff
     for (int i=0; i<keys.size(); i++) {
-        groupUidList = keys.at(i).split(",");
-        CommHistory::Group group = this->getOrCreateGroup(groupUidList);
-        //qDebug() << i << keys.at(i) << groups.values(keys.at(i)).size();
+        keySet.insert(keys.at(i));
+    }
+    //qDebug() << "found in csv" << keySet;
+
+    QSet<QString> diff;
+    diff = keySet.subtract(dbGroupRemoteUids);
+    //qDebug() << "difference set" << diff;
+
+    // There will be no race condition on your phone :<
+    QList<CommHistory::Group> newGroups;
+    foreach (QString toCreateUids, diff) {
+        CommHistory::Group group = this->createGroup(toCreateUids.split(","));
+        newGroups.push_back(group);
     }
 
     this->insertedSMS = messages.size();
@@ -162,8 +193,8 @@ void CSVHandler::insertMessages(MessageList messages) {
     }
 }
 
-CommHistory::Group CSVHandler::getOrCreateGroup(QStringList remoteUids) {
-    //qDebug() << "Get or create group" << remoteUids.join(",");
+CommHistory::Group CSVHandler::createGroup(QStringList remoteUids) {
+    //qDebug() << "Creating" << remoteUids;
 
     CommHistory::GroupModel groupModel;
 
@@ -178,33 +209,7 @@ CommHistory::Group CSVHandler::getOrCreateGroup(QStringList remoteUids) {
 
     group.setRemoteUids(remoteUids);
 
-    // The Group api does not allow to query for all the remoteUids as QStringList
-    // so this hack needs to be here...
-    QString groupRemoteUids; // if (!remoteUid.isEmpty()) q += "Groups.remoteUids = :remoteUid ";
-    QStringList groupRemoteUidKeys;
-    CommHistory::Group dbGroup;
-
-    groupRemoteUidKeys = group.remoteUids();
-    groupRemoteUidKeys.sort();
-    groupRemoteUids = groupRemoteUidKeys.join("\n");
-    // The signature is bool, it updates its state
-    if (!groupModel.getGroups(group.localUid(), groupRemoteUids)) {
-        // TODO: error handling
-        qCritical() << "ERROR!";
-    } else {
-        // These should be guaranteed uniqueness
-        int count = groupModel.rowCount();
-        //qDebug() << "found" << count << "entries for" << remoteUids.join("|");
-        Q_ASSERT_X(count < 2, "checking groups", "too many!");
-
-        if (count == 0) {
-            groupModel.addGroup(group);
-            //qDebug() << "No match, added with" << group.id() << group.toString();
-        } else {
-            dbGroup = groupModel.group(groupModel.index(0, 0));
-            //qDebug() << "Match!" << dbGroup.toString();
-        }
-    }
+    groupModel.addGroup(group);
 
     return group;
 }
