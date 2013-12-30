@@ -141,8 +141,8 @@ void InsertWorker::run() {
     foreach (QString toCreateUids, diff) {
         CommHistory::Group group = this->createGroup(toCreateUids.split(","));
         newGroups.push_back(group);
-        if (newGroups.size() % 100 == 0) {
-            usleep(10 * 1000);
+        if (newGroups.size() % 10 == 0) {
+            usleep(1000);
             emit newGroupsChanged(newGroups.size());
         }
     }
