@@ -97,7 +97,8 @@ QSet<QString> InsertWorker::handleGroups(MessageList messages) {
 
     // Parse groups
     QMultiHash<QString, Message*> groups;
-    groups = this->getGrouped(messages);
+    this->groups = this->getGrouped(messages);
+
     QStringList groupUidList;
     QStringList keys = groups.uniqueKeys();
     QSet<QString> keySet;

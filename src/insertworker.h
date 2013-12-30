@@ -19,6 +19,7 @@ private:
     Q_INVOKABLE CommHistory::Group createGroup(QStringList remoteUids);
     Q_INVOKABLE QSet<QString> handleGroups(MessageList messages);
     MessageList messages;
+    QMultiHash<QString, Message*> groups;
 
 public:
     explicit InsertWorker(MessageList messages);
