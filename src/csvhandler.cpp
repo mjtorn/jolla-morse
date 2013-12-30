@@ -131,14 +131,11 @@ void CSVHandler::parseFile() {
     qDebug() << "CSVHandler::parseFile() called, registered QList<Message*>";
     if (!this->workerRunning) {
         // This is called when the qml is activated, reset some state
-        this->insertedSMS = 0;
-        emit insertedSMSChanged();
-        this->seenCSVDuplicates = 0;
-        emit seenCSVDuplicatesChanged();
-        this->seenGroups = 0;
-        emit seenGroupsChanged();
-        this->newGroups = 0;
-        emit newGroupsChanged();
+        this->setSeenSMS(0);
+        this->setSeenCSVDuplicates(0);
+        this->setSeenGroups(0);
+        this->setNewGroups(0);
+        this->setInsertedSMS(0);
 
         this->workerRunning = true;
         CSVWorker *csvWorker = new CSVWorker(this->getFilePath());
@@ -162,11 +159,6 @@ void CSVHandler::insertMessages(MessageList messages) {
     qDebug() << "Inserting messages:" << messages.size();
 
     if (!this->insertRunning) {
-        // This is called when the qml is activated, reset some state
-        this->setSeenGroups(0);
-        this->setNewGroups(0);
-        this->setInsertedSMS(0);
-
         this->insertRunning = true;
         InsertWorker *insertWorker = new InsertWorker(messages);
 
