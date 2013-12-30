@@ -17,7 +17,7 @@ InsertWorker::InsertWorker(MessageList messages) :
     this->messages = messages;
 }
 
-QMultiHash<QString, Message*> InsertWorker::getGrouped(MessageList messages) {
+void InsertWorker::setGrouped(MessageList messages) {
     QSet<QString> remoteUids;    // These take out duplicate UIDs
     QStringList remoteUidList;  // Actually stored in a group
     QString joinedRemoteUids;  // I can hash strings
@@ -67,7 +67,7 @@ QMultiHash<QString, Message*> InsertWorker::getGrouped(MessageList messages) {
     groups.insert(joinedRemoteUids, messages.last());
 
     emit seenGroupsChanged(groups.uniqueKeys().size());
-    return groups;
+    this->groups = groups;
 }
 
 
@@ -94,10 +94,6 @@ CommHistory::Group InsertWorker::createGroup(QStringList remoteUids) {
 
 QSet<QString> InsertWorker::handleGroups(MessageList messages) {
     QSet<QString> dbGroupRemoteUids; // This is all of them, our return value
-
-    // Parse groups
-    QMultiHash<QString, Message*> groups;
-    this->groups = this->getGrouped(messages);
 
     QStringList groupUidList;
     QStringList keys = groups.uniqueKeys();
@@ -158,6 +154,9 @@ QSet<QString> InsertWorker::handleGroups(MessageList messages) {
 
 void InsertWorker::run() {
     MessageList messages = this->messages;
+
+    // Parse groups
+    this->setGrouped(messages);
 
     QSet<QString> dbGroupRemoteUids = this->handleGroups(messages);
 
