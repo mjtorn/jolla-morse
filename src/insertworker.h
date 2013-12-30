@@ -18,6 +18,7 @@ private:
     Q_INVOKABLE void setGrouped(MessageList messages);
     Q_INVOKABLE CommHistory::Group createGroup(QStringList remoteUids);
     Q_INVOKABLE QSet<QString> handleGroups(MessageList messages);
+    Q_INVOKABLE void handleMessages(QSet<QString> dbGroupRemoteUids);
     MessageList messages;
     QMultiHash<QString, Message*> groups;
 

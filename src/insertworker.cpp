@@ -160,8 +160,8 @@ void InsertWorker::run() {
 
     QSet<QString> dbGroupRemoteUids = this->handleGroups(messages);
 
-    // TODO: Actual insertion
-    emit insertedSMSChanged(messages.size());
+    this->handleMessages(dbGroupRemoteUids);
+
     for (int i=0; i<messages.size(); i++) {
         delete messages.at(i);
     }
