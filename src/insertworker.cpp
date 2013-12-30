@@ -152,6 +152,12 @@ QSet<QString> InsertWorker::handleGroups(MessageList messages) {
     return dbGroupRemoteUids;
 }
 
+void InsertWorker::handleMessages(QSet<QString> dbGroupRemoteUids) {
+     emit duplicateSMSChanged(-1);
+
+     emit insertedSMSChanged(-1);
+}
+
 void InsertWorker::run() {
     MessageList messages = this->messages;
 
