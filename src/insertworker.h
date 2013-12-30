@@ -24,6 +24,7 @@ public:
 signals:
     void seenGroupsChanged(int seenGroups);
     void newGroupsChanged(int newGroups);
+    void duplicateSMSChanged(int duplicateSMS);
     void insertedSMSChanged(int insertedSMS);
 };
 
