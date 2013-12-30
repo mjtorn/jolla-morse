@@ -24,7 +24,7 @@ public:
 signals:
     void seenGroupsChanged(int seenGroups);
     void newGroupsChanged(int newGroups);
-    void insertedSMSChanged(int insertedSMSChanged);
+    void insertedSMSChanged(int insertedSMS);
 };
 
 #endif // INSERTWORKER_H
