@@ -145,6 +145,11 @@ void InsertWorker::run() {
             usleep(1000);
             emit newGroupsChanged(newGroups.size());
         }
+        // Populate our new groups as they are in the db
+        Q_ASSERT(group.id() != -1);
+        groupUids = group.remoteUids();
+        groupUids.sort();
+        dbGroupRemoteUids.insert(groupUids.join(","));
     }
     emit newGroupsChanged(newGroups.size());
 
