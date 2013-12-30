@@ -8,6 +8,7 @@
 #include <QDir>
 #include <QFile>
 #include <QMetaType>
+#include <QMultiHash>
 #include <QString>
 #include <QThread>
 
@@ -138,11 +139,20 @@ void CSVHandler::insertMessages(MessageList messages) {
     // TODO: Actual functionality!
 
     // Parse groups
-    QList<CommHistory::Group> groups;
-    groups = this->getGroups(messages);
-    qDebug() << "Got groups:" << groups.size();
+    QMultiHash<QString, Message*> groups;
+    groups = this->getGrouped(messages);
+    QStringList groupUidList;
+    QStringList keys = groups.uniqueKeys();
+
+    qDebug() << "Got groups:" << keys.size();
 
     // TODO: Insert groups with group manager
+
+    for (int i=0; i<keys.size(); i++) {
+        groupUidList = keys.at(i).split(",");
+        CommHistory::Group group = this->createGroup(groupUidList);
+        //qDebug() << i << keys.at(i) << groups.values(keys.at(i)).size();
+    }
 
     this->insertedSMS = messages.size();
     emit insertedSMSChanged();
@@ -169,9 +179,8 @@ CommHistory::Group CSVHandler::createGroup(QStringList remoteUids) {
     return group;
 }
 
-QList<CommHistory::Group> CSVHandler::getGroups(MessageList messages) {
-    QSet<QString> seenRemoteUids; // Keep away duplicate groups
-    QSet<QString> remoteUids;    // These away duplicates UIDs
+QMultiHash<QString, Message*> CSVHandler::getGrouped(MessageList messages) {
+    QSet<QString> remoteUids;    // These take out duplicate UIDs
     QStringList remoteUidList;  // Actually stored in a group
     QString joinedRemoteUids;  // I can hash strings
 
@@ -181,7 +190,7 @@ QList<CommHistory::Group> CSVHandler::getGroups(MessageList messages) {
     QString nextRemoteUid;
     QString nextFreeText;
 
-    QList<CommHistory::Group> groups;
+    QMultiHash<QString, Message*> groups;
 
     qDebug() << "Getting groups";
 
@@ -202,18 +211,7 @@ QList<CommHistory::Group> CSVHandler::getGroups(MessageList messages) {
             remoteUidList.sort();
             joinedRemoteUids = remoteUidList.join(",");
 
-            if (seenRemoteUids.contains(joinedRemoteUids)) {
-                //qDebug() << "Already seen" << joinedRemoteUids;
-                remoteUids = QSet<QString>();
-                continue;
-            }
-
-            seenRemoteUids.insert(joinedRemoteUids);
-
-            CommHistory::Group group = this->createGroup(remoteUidList);
-
-            groups.push_back(group);
-
+            groups.insert(joinedRemoteUids, messages.at(i));
             remoteUids = QSet<QString>();
         }
     }
@@ -228,17 +226,9 @@ QList<CommHistory::Group> CSVHandler::getGroups(MessageList messages) {
     remoteUidList.sort();
     joinedRemoteUids = remoteUidList.join(",");
 
-    if (seenRemoteUids.contains(joinedRemoteUids)) {
-        //qDebug() << "Already seen" << joinedRemoteUids;
-    } else {
-        // No need to bother anymore
-        // seenRemoteUids.insert(joinedRemoteUids);
-        CommHistory::Group group = this->createGroup(remoteUidList);
+    groups.insert(joinedRemoteUids, messages.last());
 
-        groups.push_back(group);
-    }
-
-    this->seenGroups = groups.size();
+    this->seenGroups = groups.uniqueKeys().size();
     emit seenGroupsChanged();
     return groups;
 }

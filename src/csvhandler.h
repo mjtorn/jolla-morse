@@ -6,6 +6,7 @@
 #include <QFile>
 #include <QDir>
 #include <QList>
+#include <QMultiHash>
 #include <QString>
 #include <QThread>
 
@@ -47,7 +48,7 @@ public:
     Q_PROPERTY(int seenGroups READ getSeenGroups NOTIFY seenGroupsChanged);
 
 private:
-    Q_INVOKABLE QList<CommHistory::Group> getGroups(MessageList messages);
+    Q_INVOKABLE QMultiHash<QString, Message*> getGrouped(MessageList messages);
     Q_INVOKABLE CommHistory::Group createGroup(QStringList remoteUids);
     QString filename;
     QString filepath;
