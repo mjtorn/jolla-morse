@@ -110,8 +110,8 @@ CommHistory::Group InsertWorker::createGroup(QStringList remoteUids) {
     return group;
 }
 
-QSet<QString> InsertWorker::handleGroups(MessageList messages) {
-    QSet<QString> dbGroupRemoteUids; // This is all of them, our return value
+QHash<QString, CommHistory::Group> InsertWorker::handleGroups(MessageList messages) {
+    QHash<QString, CommHistory::Group> dbGroupRemoteUids; // This is all of them, our return value
 
     QStringList groupUidList;
     QStringList keys = groups.uniqueKeys();
@@ -136,7 +136,8 @@ QSet<QString> InsertWorker::handleGroups(MessageList messages) {
         dbGroup = groupModel.group(groupModel.index(i, 0));
         groupUids = dbGroup.remoteUids();
         groupUids.sort();
-        dbGroupRemoteUids.insert(groupUids.join(","));
+        dbGroupRemoteUids.insert(groupUids.join(","), dbGroup);
+        Q_ASSERT(dbGroupRemoteUids.values(groupUids.join(",")).size() == 1);
     }
     //qDebug() << "found in db" << dbGroupRemoteUids;
 
@@ -147,7 +148,7 @@ QSet<QString> InsertWorker::handleGroups(MessageList messages) {
     //qDebug() << "found in csv" << keySet;
 
     QSet<QString> diff;
-    diff = keySet.subtract(dbGroupRemoteUids);
+    diff = keySet.subtract(dbGroupRemoteUids.keys().toSet());
     //qDebug() << "difference set" << diff;
 
     // There will be no race condition on your phone :<
@@ -163,17 +164,18 @@ QSet<QString> InsertWorker::handleGroups(MessageList messages) {
         Q_ASSERT(group.id() != -1);
         groupUids = group.remoteUids();
         groupUids.sort();
-        dbGroupRemoteUids.insert(groupUids.join(","));
+        dbGroupRemoteUids.insert(groupUids.join(","), group);
+        Q_ASSERT(dbGroupRemoteUids.values(groupUids.join(",")).size() == 1);
     }
     emit newGroupsChanged(newGroups.size());
 
     return dbGroupRemoteUids;
 }
 
-void InsertWorker::handleMessages(QSet<QString> dbGroupRemoteUids) {
-     emit duplicateSMSChanged(-1);
+void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemoteUids) {
+    emit duplicateSMSChanged(-1);
 
-     emit insertedSMSChanged(-1);
+    emit insertedSMSChanged(-1);
 }
 
 void InsertWorker::run() {
@@ -182,7 +184,7 @@ void InsertWorker::run() {
     // Parse groups
     this->setGrouped(messages);
 
-    QSet<QString> dbGroupRemoteUids = this->handleGroups(messages);
+    QHash<QString, CommHistory::Group> dbGroupRemoteUids = this->handleGroups(messages);
 
     this->handleMessages(dbGroupRemoteUids);
 
