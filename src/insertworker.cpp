@@ -1,9 +1,12 @@
+#include <QDateTime>
 #include <QMultiHash>
 #include <QSet>
 #include <QString>
 
 #include "insertworker.h"
 
+#include "CommHistory/conversationmodel.h"
+#include "CommHistory/event.h"
 #include "CommHistory/group.h"
 #include "CommHistory/groupmodel.h"
 #include "message.h"
@@ -173,9 +176,78 @@ QHash<QString, CommHistory::Group> InsertWorker::handleGroups(MessageList messag
 }
 
 void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemoteUids) {
+    groups = this->groups;
+    int inserted = 0;
+
+    QList<CommHistory::Group> groupObjects = dbGroupRemoteUids.values();
+    QList<int> groupIds;
+    for (int i=0; i<groupObjects.size(); i++) {
+        groupIds.push_back(groupObjects.at(i).id());
+    }
+
+    // TODO Get all the messages in the db
+    CommHistory::ConversationModel conversationModel;
+    conversationModel.enableContactChanges(false);
+    conversationModel.setTreeMode(true);
+    bool retval = conversationModel.getEvents(groupIds);
+    if (!retval) {
+        qCritical() << "Failed getting events for groups";
+        return;
+    }
+    conversationModel.setFilter(CommHistory::Event::SMSEvent, GROUP_LOCAL_UID, CommHistory::Event::UnknownDirection);
+    qDebug() << conversationModel.rowCount();
+
+    // Iterate over what we have
+    QList<QString> groupKeys = groups.uniqueKeys();
+    for (int i=0;i<groupKeys.size(); i++) {
+        QString key = groupKeys.at(i);
+        MessageList messages = groups.values(key);
+        CommHistory::Group group = dbGroupRemoteUids.value(key);
+        //qDebug() << group.toString() << messages;
+
+        // TODO: Check if this/these already existed in the db
+        for (int j=0; j<messages.size(); j++) {
+            Message *msg = messages.at(j);
+
+            QDateTime startTime;
+            startTime.setTime_t(msg->startTime);
+            QDateTime endTime;
+            endTime.setTime_t(msg->endTime);
+
+            // XXX Hate placeholder
+            if (!false) {
+                CommHistory::EventModel eventModel;
+
+                CommHistory::Event e;
+                e.setType(CommHistory::Event::SMSEvent);
+                e.setLocalUid(GROUP_LOCAL_UID);
+                e.setStartTime(startTime);
+                e.setEndTime(endTime);
+                (msg->isOutgoing) ? e.setIsRead(true) : e.setIsRead(msg->isRead);
+                (msg->isOutgoing) ? e.setDirection(CommHistory::Event::Outbound) : e.setDirection(CommHistory::Event::Inbound);
+                e.setGroupId(group.id());
+                e.setRemoteUid(key.replace(",", "\n"));
+                e.setFreeText(msg->freeText);
+
+                int retval = eventModel.addEvent(e);
+                if (!retval) {
+                    qCritical() << "Failed adding event for message" << msg->id;
+                    emit duplicateSMSChanged(-1);
+                    emit insertedSMSChanged(-1);
+                    return;
+                }
+
+                inserted++;
+
+                if (inserted % 100 == 0) {
+                    emit insertedSMSChanged(inserted);
+                }
+            }
+        }
+    }
     emit duplicateSMSChanged(-1);
 
-    emit insertedSMSChanged(-1);
+    emit insertedSMSChanged(inserted);
 }
 
 void InsertWorker::run() {
