@@ -177,6 +177,7 @@ QHash<QString, CommHistory::Group> InsertWorker::handleGroups(MessageList messag
 
 void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemoteUids) {
     groups = this->groups;
+    int duplicate = 0;
     int inserted = 0;
 
     QList<CommHistory::Group> groupObjects = dbGroupRemoteUids.values();
@@ -185,17 +186,26 @@ void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemo
         groupIds.push_back(groupObjects.at(i).id());
     }
 
-    // TODO Get all the messages in the db
+    // Get all the messages in the db
+    // Store a QSet<QString> of hashlike things we can check against later
+    QSet<QString> hashlets;
+    QString s;
+
     CommHistory::ConversationModel conversationModel;
     conversationModel.enableContactChanges(false);
-    conversationModel.setTreeMode(true);
+    conversationModel.setFilter(CommHistory::Event::SMSEvent, GROUP_LOCAL_UID, CommHistory::Event::UnknownDirection);
     bool retval = conversationModel.getEvents(groupIds);
     if (!retval) {
         qCritical() << "Failed getting events for groups";
         return;
     }
-    conversationModel.setFilter(CommHistory::Event::SMSEvent, GROUP_LOCAL_UID, CommHistory::Event::UnknownDirection);
     qDebug() << conversationModel.rowCount();
+    for (int i=0; i<conversationModel.rowCount(); i++) {
+        CommHistory::Event e = conversationModel.event(conversationModel.index(i, 0));
+        // FIXME: This startTime is not the same as below, smells like time zone issues.
+        s = e.startTime().toString(Qt::TextDate) + QString("|") + e.remoteUid() + QString("|") + e.freeText();
+        hashlets.insert(s);
+    }
 
     // Iterate over what we have
     QList<QString> groupKeys = groups.uniqueKeys();
@@ -205,7 +215,8 @@ void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemo
         CommHistory::Group group = dbGroupRemoteUids.value(key);
         //qDebug() << group.toString() << messages;
 
-        // TODO: Check if this/these already existed in the db
+        // Go through our messages and see if we need to insert them.
+        // Insert them if we do.
         for (int j=0; j<messages.size(); j++) {
             Message *msg = messages.at(j);
 
@@ -214,8 +225,18 @@ void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemo
             QDateTime endTime;
             endTime.setTime_t(msg->endTime);
 
-            // XXX Hate placeholder
-            if (!false) {
+            s = startTime.toString(Qt::TextDate) + QString("|");
+
+            // Messages sent to many people have empty remoteUid
+            if (!key.contains(',')) {
+                s += key;
+            } /*else {
+                qDebug() << "Going to skip key" << key;
+            }*/
+
+            s += QString("|") + msg->freeText;
+
+            if (!hashlets.contains(s)) {
                 CommHistory::EventModel eventModel;
 
                 CommHistory::Event e;
@@ -226,7 +247,10 @@ void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemo
                 (msg->isOutgoing) ? e.setIsRead(true) : e.setIsRead(msg->isRead);
                 (msg->isOutgoing) ? e.setDirection(CommHistory::Event::Outbound) : e.setDirection(CommHistory::Event::Inbound);
                 e.setGroupId(group.id());
-                e.setRemoteUid(key.replace(",", "\n"));
+                // For group messages make sure the event is inserted foreach group,
+                // but the actual group version of the message is without remoteUids.
+                if (!key.contains(','))
+                    e.setRemoteUid(key);
                 e.setFreeText(msg->freeText);
 
                 int retval = eventModel.addEvent(e);
@@ -242,11 +266,15 @@ void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemo
                 if (inserted % 100 == 0) {
                     emit insertedSMSChanged(inserted);
                 }
+            } else {
+                duplicate++;
+                if (duplicate % 10 == 0) {
+                    emit duplicateSMSChanged(duplicate);
+                }
             }
         }
     }
-    emit duplicateSMSChanged(-1);
-
+    emit duplicateSMSChanged(duplicate);
     emit insertedSMSChanged(inserted);
 }
 
