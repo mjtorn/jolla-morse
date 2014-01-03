@@ -31,6 +31,7 @@ public:
     Q_INVOKABLE void insertFinished();
     Q_INVOKABLE void parseFile();
     Q_INVOKABLE void insertMessages(MessageList messages);
+    Q_INVOKABLE QString getState();
     Q_INVOKABLE int getReadBytes();
     Q_INVOKABLE int getSeenEntries();
     Q_INVOKABLE int getSeenSMS();
@@ -39,6 +40,7 @@ public:
     Q_INVOKABLE int getNewGroups();
     Q_INVOKABLE int getDuplicateSMS();
     Q_INVOKABLE int getInsertedSMS();
+    Q_INVOKABLE void setState(QString state);
     Q_INVOKABLE void setReadBytes(int readBytes);
     Q_INVOKABLE void setSeenEntries(int seenEntries);
     Q_INVOKABLE void setSeenSMS(int seenSMS);
@@ -47,6 +49,7 @@ public:
     Q_INVOKABLE void setNewGroups(int newGroups);
     Q_INVOKABLE void setDuplicateSMS(int seenSMS);
     Q_INVOKABLE void setInsertedSMS(int insertedSMS);
+    Q_PROPERTY(QString state READ getState NOTIFY stateChanged);
     Q_PROPERTY(int readBytes READ getReadBytes NOTIFY readBytesChanged);
     Q_PROPERTY(int seenEntries READ getSeenEntries NOTIFY seenEntriesChanged);
     Q_PROPERTY(int seenSMS READ getSeenSMS NOTIFY seenSMSChanged);
@@ -59,6 +62,7 @@ public:
 private:
     QString filename;
     QString filepath;
+    QString state;
     QFile file;
     bool workerRunning;
     bool insertRunning;
@@ -72,6 +76,7 @@ private:
     int insertedSMS;
 
 signals:
+    void stateChanged();
     void readBytesChanged();
     void seenEntriesChanged();
     void seenSMSChanged();

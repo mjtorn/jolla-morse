@@ -19,6 +19,8 @@ QString BASEDIR_NAME = QString("/etc/mersdk/share/");
 CSVHandler::CSVHandler(QObject *parent) :
     QObject(parent)
 {
+    this->setState(QString("Idle"));
+
     // Come from CSVWorker
     this->workerRunning = false;
     this->readBytes = 0;
@@ -54,6 +56,15 @@ QString CSVHandler::getFilePath() {
 
 QString CSVHandler::getFileName() {
     return this->filename;
+}
+
+void CSVHandler::setState(QString state) {
+    this->state = state;
+    emit stateChanged();
+}
+
+QString CSVHandler::getState() {
+    return this->state;
 }
 
 void CSVHandler::setReadBytes(int readBytes) {
@@ -140,6 +151,8 @@ void CSVHandler::parseFile() {
     qRegisterMetaType<MessageList>("MessageList");
     qDebug() << "CSVHandler::parseFile() called, registered QList<Message*>";
     if (!this->workerRunning) {
+        this->setState(QString("Parsing"));
+
         // This is called when the qml is activated, reset some state
         this->setSeenSMS(0);
         this->setSeenCSVDuplicates(0);
@@ -182,6 +195,8 @@ void CSVHandler::insertMessages(MessageList messages) {
         connect(insertWorker, &InsertWorker::duplicateSMSChanged, this, &CSVHandler::setDuplicateSMS);
         connect(insertWorker, &InsertWorker::insertedSMSChanged, this, &CSVHandler::setInsertedSMS);
         insertWorker->start();
+
+        this->setState(QString("Inserting"));
     } else {
         qDebug() << "Refuse to run another thread!";
     }
