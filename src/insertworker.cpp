@@ -34,6 +34,10 @@ void InsertWorker::setGrouped(MessageList messages) {
 
     // Check the message body of the next message to see if
     // we have messages of the same group.
+    //
+    // XXX: There's an issue where a message that belongs to
+    // many groups will get the wrong remoteUID.
+    // Use the group keys later to counterbalance that.
     for (int i=0; i<messages.size() - 1; i++) {
         remoteUid = messages.at(i)->remoteUID;
         freeText = messages.at(i)->freeText;
@@ -51,6 +55,13 @@ void InsertWorker::setGrouped(MessageList messages) {
 
             groups.insert(joinedRemoteUids, messages.at(i));
             remoteUids = QSet<QString>();
+
+            // Component remoteUids must get the message too!
+            if (remoteUidList.size() > 1) {
+                for (int j=0; j<remoteUidList.size(); j++) {
+                    groups.insert(remoteUidList.at(j), messages.at(i));
+                }
+            }
         }
     }
 
@@ -65,6 +76,13 @@ void InsertWorker::setGrouped(MessageList messages) {
     joinedRemoteUids = remoteUidList.join(",");
 
     groups.insert(joinedRemoteUids, messages.last());
+
+    // Also populate the last one, to be sure, if it was a multi-uid group component
+    if (remoteUidList.size() > 1) {
+        for (int j=0; j<remoteUidList.size(); j++) {
+            groups.insert(remoteUidList.at(j), messages.last());
+        }
+    }
 
     emit seenGroupsChanged(groups.uniqueKeys().size());
     this->groups = groups;
