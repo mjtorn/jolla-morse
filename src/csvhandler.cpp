@@ -145,6 +145,7 @@ void CSVHandler::workerFinished() {
 
 void CSVHandler::insertFinished() {
     this->insertRunning = false;
+    this->setState(QString("DONE! You may quit now."));
 }
 
 void CSVHandler::parseFile() {
