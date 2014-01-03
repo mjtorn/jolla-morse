@@ -50,6 +50,12 @@ Page {
             }
 
             Label {
+                id: state
+                text: appWindow.csvhandler.state + "\n"
+                x: Theme.paddingLarge
+            }
+
+            Label {
                 id: bytes_label
                 text: "Read bytes: " + appWindow.csvhandler.readBytes
                 x: Theme.paddingLarge
