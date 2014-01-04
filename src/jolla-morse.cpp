@@ -32,6 +32,8 @@
 #include <QtQuick>
 #endif
 
+#include <QtQml>
+
 #include <sailfishapp.h>
 #include "csvhandler.h"
 
