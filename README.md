@@ -12,6 +12,14 @@ If you answered yes, Morse is your app!
 Just dump your live db using GlogArchive, transfer the file to your phone and open it
 with Morse.
 
+FAQ
+---
+
+Why does Morse insert more messages than were seen?
+
+The short answer is that the commhistory db duplicates data based on multiple
+recipients. See Notes below for more info.
+
 Notes
 ----
 
