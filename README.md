@@ -36,9 +36,8 @@ to the Group with both numbers.
 Caveats
 -------
 
-There's a lot of stuff I didn't have time to do.
-
-One of those is it probably crashes if no SMS data is found in the CSV.
+There's a lot of detailing I didn't have time to do. Try reading another file while
+already reading another one; it won't start new threads but it changes the label.
 
 It requires libcommhistory-qt5-devel.
 
