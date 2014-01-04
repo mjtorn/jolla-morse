@@ -254,6 +254,9 @@ void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemo
                 e.setEndTime(endTime);
                 (msg->isOutgoing) ? e.setIsRead(true) : e.setIsRead(msg->isRead);
                 (msg->isOutgoing) ? e.setDirection(CommHistory::Event::Outbound) : e.setDirection(CommHistory::Event::Inbound);
+                // Sent messages are sent
+                if (e.direction() == CommHistory::Event::Outbound)
+                    e.setStatus(CommHistory::Event::SentStatus);
                 e.setGroupId(group.id());
                 // For group messages make sure the event is inserted foreach group,
                 // but the actual group version of the message is without remoteUids.
