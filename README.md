@@ -20,6 +20,15 @@ Why does Morse insert more messages than were seen?
 The short answer is that the commhistory db duplicates data based on multiple
 recipients. See Notes below for more info.
 
+Do you take pull requests?
+
+Absolutely! I know there's a lot of stuff that could and should look better, so that's
+definitely welcome. Also if you want to have support for other dumps that n900/Glog,
+I'm sure a lot of people are interested!
+
+Only I can't test everything. I got my messages imported on the Jolla and that's
+all I can say, so I will trust you guys to do your testing if you submit PRs!
+
 Notes
 ----
 
@@ -51,3 +60,4 @@ Store?
 
 Morse will probably never find itself in the store. I'm sure there's too much of process
 in the way for an app I'm doing mostly for myself for a pretty special case. Let's see.
+
