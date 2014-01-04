@@ -1,5 +1,6 @@
 #include "csvworker.h"
 
+#include <QByteArray>
 #include <QDebug>
 #include <QFile>
 #include <QHash>
@@ -69,7 +70,7 @@ MessageList CSVWorker::actualParse() {
     Message *msg = new Message();
     MessageList messages;
     QSet<quint32> csvIds;
-    QString cell;
+    QByteArray cell;
     bool inQuotes = false;
     char c;
     char c1;
@@ -108,7 +109,7 @@ MessageList CSVWorker::actualParse() {
                         break;
                     case 2:
                         //qDebug() << "got type" << cell;
-                        msg->eventTypeName = cell;
+                        msg->eventTypeName = QString::fromUtf8(cell);
                         break;
                     case 3:
                         msg->isOutgoing = (bool) toInt(cell);
@@ -143,31 +144,31 @@ MessageList CSVWorker::actualParse() {
                         //qDebug() << "got bytesReceived" << msg->bytesReceived;
                         break;
                     case 11:
-                        msg->localUID = cell;
+                        msg->localUID = QString::fromUtf8(cell);
                         //qDebug() << "got localUID" << msg->localUID;
                         break;
                     case 12:
-                        msg->localName = cell;
+                        msg->localName = QString::fromUtf8(cell);
                         //qDebug() << "got localName" << msg->localName;
                         break;
                     case 13:
-                        msg->remoteUID = cell;
+                        msg->remoteUID = QString::fromUtf8(cell);
                         //qDebug() << "got remoteUID" << msg->remoteUID;
                         break;
                     case 14:
-                        msg->remoteName = cell;
+                        msg->remoteName = QString::fromUtf8(cell);
                         //qDebug() << "got remoteName" << msg->remoteName;
                         break;
                     case 15:
-                        msg->channel = cell;
+                        msg->channel = QString::fromUtf8(cell);
                         //qDebug() << "got channel" << msg->channel;
                         break;
                     case 16:
                         // FIXME: The parser should handle a message whose content is only ;
-                        if (cell.compare(QString("")) == 0) {
+                        if (cell.size() == 0) {
                             msg->freeText = QString(";");
                         } else {
-                            msg->freeText = cell;
+                            msg->freeText = QString::fromUtf8(cell);
                         }
                         //qDebug() << "got freeText" << msg->freeText;
                         break;
