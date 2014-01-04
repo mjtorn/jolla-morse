@@ -12,6 +12,8 @@ If you answered yes, Morse is your app!
 Just dump your live db using GlogArchive, transfer the file to your Documents and open it
 with Morse.
 
+Screenshots: http://imgur.com/a/vO1QU
+
 This software comes with no warranty. Take a backup, eg. by taking a tarball of
 /home/nemo/.local/share/commhistory/ or however you want it.
 
