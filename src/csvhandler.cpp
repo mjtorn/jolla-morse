@@ -17,7 +17,7 @@
 // FIXME: Should be based on a -D flag
 //QString BASEDIR_NAME = QString("/etc/mersdk/share/");
 #include <QStandardPaths>
-QString BASEDIR_NAME = QStandardPaths::displayName(QStandardPaths::DesktopLocation) + QString("/");
+QString BASEDIR_NAME = QStandardPaths::displayName(QStandardPaths::DocumentsLocation) + QString("/");
 
 CSVHandler::CSVHandler(QObject *parent) :
     QObject(parent)
