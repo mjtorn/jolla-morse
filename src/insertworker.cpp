@@ -202,8 +202,10 @@ void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemo
     qDebug() << conversationModel.rowCount();
     for (int i=0; i<conversationModel.rowCount(); i++) {
         CommHistory::Event e = conversationModel.event(conversationModel.index(i, 0));
-        // FIXME: This startTime is not the same as below, smells like time zone issues.
-        s = e.startTime().toString(Qt::TextDate) + QString("|") + e.remoteUid() + QString("|") + e.freeText();
+        // It's in UTC by default
+        QDateTime dbStartTime = e.startTime();
+        //qDebug() << "found in db" << dbStartTime.toLocalTime().toString(Qt::TextDate);
+        s = dbStartTime.toLocalTime().toString(Qt::TextDate) + QString("|") + e.remoteUid() + QString("|") + e.freeText();
         hashlets.insert(s);
     }
 
@@ -225,6 +227,7 @@ void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemo
             QDateTime endTime;
             endTime.setTime_t(msg->endTime);
 
+            //qDebug() << "found in csv" << startTime.toString(Qt::TextDate);
             s = startTime.toString(Qt::TextDate) + QString("|");
 
             // Messages sent to many people have empty remoteUid
@@ -274,6 +277,7 @@ void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemo
             }
         }
     }
+
     emit duplicateSMSChanged(duplicate);
     emit insertedSMSChanged(inserted);
 }
