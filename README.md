@@ -9,7 +9,7 @@ messages into your Jolla?
 
 If you answered yes, Morse is your app!
 
-Just dump your live db using GlogArchive, transfer the file to your phone and open it
+Just dump your live db using GlogArchive, transfer the file to your Documents and open it
 with Morse.
 
 FAQ
