@@ -12,15 +12,24 @@ If you answered yes, Morse is your app!
 Just dump your live db using GlogArchive, transfer the file to your Documents and open it
 with Morse.
 
+This software comes with no warranty. Take a backup, eg. by taking a tarball of
+/home/nemo/.local/share/commhistory/ or however you want it.
+
+You may want to run the app in airplane mode so no incoming sms will screw you up, especially
+if you have to restore the backup later for some reason.
+
+I tested importing the csv twice and the duplicates were recognized properly, but no
+guarantees, warrantees, or anythings.
+
 FAQ
 ---
 
-Why does Morse insert more messages than were seen?
+_Why does Morse insert more messages than were seen?_
 
 The short answer is that the commhistory db duplicates data based on multiple
 recipients. See Notes below for more info.
 
-Do you take pull requests?
+_Do you take pull requests?_
 
 Absolutely! I know there's a lot of stuff that could and should look better, so that's
 definitely welcome. Also if you want to have support for other dumps that n900/Glog,
@@ -42,13 +51,16 @@ Querying the table Events, eg. WHERE groupId IN (4, 19, 20); you see the two uni
 remoteUid values and one without a remoteUid value. The one without a value is related
 to the Group with both numbers.
 
+There are discrepancies between the n900 and Jolla data here and there, please refer
+to the comments in insertworker.cpp for more info.
+
 Caveats
 -------
 
 There's a lot of detailing I didn't have time to do. Try reading another file while
 already reading another one; it won't start new threads but it changes the label.
 
-It requires libcommhistory-qt5-devel.
+It requires libcommhistory-qt5-devel. Install it through the IDE/SDK.
 
 I have been solidly in the Python + PostgreSQL = Django world for years and years, so
 what little I may have known of c++ is lost. That's more than I can say for QT, which
