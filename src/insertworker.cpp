@@ -33,6 +33,11 @@ void InsertWorker::setGrouped(MessageList messages) {
 
     QMultiHash<QString, Message*> groups;
 
+    if (messages.size() == 0) {
+        qCritical() << "Got no messages!";
+        return;
+    }
+
     qDebug() << "Getting groups";
 
     // Check the message body of the next message to see if
