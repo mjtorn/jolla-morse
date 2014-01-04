@@ -229,8 +229,15 @@ void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemo
 
             QDateTime startTime;
             startTime.setTime_t(msg->startTime);
+
+            // The n900 dump has end times only for incoming messages
+            // but having 0 on Jolla screws up the ordering.
             QDateTime endTime;
-            endTime.setTime_t(msg->endTime);
+            if (msg->endTime == 0) {
+                endTime.setTime_t(msg->startTime);
+            } else {
+                endTime.setTime_t(msg->endTime);
+            }
 
             //qDebug() << "found in csv" << startTime.toString(Qt::TextDate);
             s = startTime.toString(Qt::TextDate) + QString("|");
