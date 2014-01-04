@@ -28,9 +28,9 @@ to the Group with both numbers.
 Caveats
 -------
 
-This is highly work in progress. It does not insert messages yet, only converts the CSV
-into intermediary Message objects. I might parse them straight to Jolla's Group and Event
-objects, or I may not.
+There's a lot of stuff I didn't have time to do.
+
+One of those is it probably crashes if no SMS data is found in the CSV.
 
 It requires libcommhistory-qt5-devel.
 
