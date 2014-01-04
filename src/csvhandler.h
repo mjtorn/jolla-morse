@@ -64,8 +64,7 @@ private:
     QString filepath;
     QString state;
     QFile file;
-    bool workerRunning;
-    bool insertRunning;
+    int working;
     int readBytes;
     int seenEntries;
     int seenSMS;

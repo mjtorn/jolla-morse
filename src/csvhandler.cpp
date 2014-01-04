@@ -21,8 +21,10 @@ CSVHandler::CSVHandler(QObject *parent) :
 {
     this->setState(QString("Idle"));
 
+    // A kind of mask for running threads
+    this->working = 0;
+
     // Come from CSVWorker
-    this->workerRunning = false;
     this->readBytes = 0;
     this->seenEntries = 0;
     this->seenSMS = 0;
@@ -31,7 +33,6 @@ CSVHandler::CSVHandler(QObject *parent) :
     this->seenGroups = 0;
     this->duplicateSMS = 0;
     this->insertedSMS = 0;
-    this->insertRunning = false;
 }
 
 QStringList CSVHandler::getCSVFiles() {
@@ -140,18 +141,18 @@ int CSVHandler::getInsertedSMS() {
 }
 
 void CSVHandler::workerFinished() {
-    this->workerRunning = false;
+    this->working--;
 }
 
 void CSVHandler::insertFinished() {
-    this->insertRunning = false;
+    this->working--;
     this->setState(QString("DONE! You may quit now."));
 }
 
 void CSVHandler::parseFile() {
     qRegisterMetaType<MessageList>("MessageList");
     qDebug() << "CSVHandler::parseFile() called, registered QList<Message*>";
-    if (!this->workerRunning) {
+    if (this->working == 0) {
         this->setState(QString("Parsing"));
 
         // This is called when the qml is activated, reset some state
@@ -162,7 +163,7 @@ void CSVHandler::parseFile() {
         this->setDuplicateSMS(0);
         this->setInsertedSMS(0);
 
-        this->workerRunning = true;
+        this->working = 1;
         CSVWorker *csvWorker = new CSVWorker(this->getFilePath());
 
         // Required methods
@@ -183,8 +184,8 @@ void CSVHandler::parseFile() {
 void CSVHandler::insertMessages(MessageList messages) {
     qDebug() << "Inserting messages:" << messages.size();
 
-    if (!this->insertRunning) {
-        this->insertRunning = true;
+    if (this->working == 1) {
+        this->working = 2;
         InsertWorker *insertWorker = new InsertWorker(messages);
 
         // Required methods
