@@ -47,7 +47,7 @@ void CSVWorker::run() Q_DECL_OVERRIDE {
     int compResult = line.compare(FIRST_LINE);
 
     if (compResult != 0) {
-        qDebug() << "Need to fail visibly here: " << compResult;
+        qCritical() << "Need to fail visibly here: " << compResult;
         goto end;
     }
     qDebug() << "OK!";
