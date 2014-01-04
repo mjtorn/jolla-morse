@@ -221,6 +221,9 @@ MessageList CSVWorker::actualParse() {
                 seenCells = 0;
                 inQuotes = false;
                 cell = "";
+            } else {
+                // Or maybe it's a message \n
+                cell.push_back(c);
             }
         } else if (c == '"') {
             // " is escaped as "", this should work until int overflow.
