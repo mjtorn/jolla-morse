@@ -93,7 +93,7 @@ Page {
 
             Label {
                 id: duplicate_sms_label
-                text: "Duplicate SMS: " + appWindow.csvhandler.duplicateSMS
+                text: "Duplicate SMS and calls: " + appWindow.csvhandler.duplicateSMS
                 x: Theme.paddingLarge
             }
 
