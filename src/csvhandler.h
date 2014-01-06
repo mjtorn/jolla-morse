@@ -40,6 +40,7 @@ public:
     Q_INVOKABLE int getNewGroups();
     Q_INVOKABLE int getDuplicateSMS();
     Q_INVOKABLE int getInsertedSMS();
+    Q_INVOKABLE int getInsertedCalls();
     Q_INVOKABLE void setState(QString state);
     Q_INVOKABLE void setReadBytes(int readBytes);
     Q_INVOKABLE void setSeenEntries(int seenEntries);
@@ -49,6 +50,7 @@ public:
     Q_INVOKABLE void setNewGroups(int newGroups);
     Q_INVOKABLE void setDuplicateSMS(int seenSMS);
     Q_INVOKABLE void setInsertedSMS(int insertedSMS);
+    Q_INVOKABLE void setInsertedCalls(int insertedCalls);
     Q_PROPERTY(QString state READ getState NOTIFY stateChanged);
     Q_PROPERTY(int readBytes READ getReadBytes NOTIFY readBytesChanged);
     Q_PROPERTY(int seenEntries READ getSeenEntries NOTIFY seenEntriesChanged);
@@ -58,6 +60,7 @@ public:
     Q_PROPERTY(int newGroups READ getNewGroups NOTIFY newGroupsChanged);
     Q_PROPERTY(int duplicateSMS READ getDuplicateSMS NOTIFY duplicateSMSChanged);
     Q_PROPERTY(int insertedSMS READ getInsertedSMS NOTIFY insertedSMSChanged);
+    Q_PROPERTY(int insertedCalls READ getInsertedCalls NOTIFY insertedCallsChanged);
 
 private:
     QString filename;
@@ -73,6 +76,7 @@ private:
     int newGroups;
     int duplicateSMS;
     int insertedSMS;
+    int insertedCalls;
 
 signals:
     void stateChanged();
@@ -84,6 +88,7 @@ signals:
     void newGroupsChanged();
     void duplicateSMSChanged();
     void insertedSMSChanged();
+    void insertedCallsChanged();
 
 public slots:
 

@@ -102,6 +102,12 @@ Page {
                 text: "Inserted SMS: " + appWindow.csvhandler.insertedSMS
                 x: Theme.paddingLarge
             }
+
+            Label {
+                id: inserted_calls_label
+                text: "Inserted calls: " + appWindow.csvhandler.insertedCalls
+                x: Theme.paddingLarge
+            }
         }
     }
 }

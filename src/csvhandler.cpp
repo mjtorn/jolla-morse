@@ -143,6 +143,15 @@ int CSVHandler::getInsertedSMS() {
     return this->insertedSMS;
 }
 
+void CSVHandler::setInsertedCalls(int insertedCalls) {
+    this->insertedCalls = insertedCalls;
+    emit insertedCallsChanged();
+}
+
+int CSVHandler::getInsertedCalls() {
+    return this->insertedCalls;
+}
+
 void CSVHandler::workerFinished() {
     this->working--;
 }
@@ -199,6 +208,7 @@ void CSVHandler::insertGlogEvents(GlogEventList glogevents) {
         connect(insertWorker, &InsertWorker::newGroupsChanged, this, &CSVHandler::setNewGroups);
         connect(insertWorker, &InsertWorker::duplicateSMSChanged, this, &CSVHandler::setDuplicateSMS);
         connect(insertWorker, &InsertWorker::insertedSMSChanged, this, &CSVHandler::setInsertedSMS);
+        connect(insertWorker, &InsertWorker::insertedCallsChanged, this, &CSVHandler::setInsertedCalls);
         insertWorker->start();
 
         this->setState(QString("Inserting"));
