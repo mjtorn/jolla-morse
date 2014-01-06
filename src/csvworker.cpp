@@ -67,7 +67,7 @@ void CSVWorker::run() Q_DECL_OVERRIDE {
 GlogEventList CSVWorker::actualParse() {
     int ROW_LENGTH = 17;
 
-    GlogEvent *msg = new GlogEvent();
+    GlogEvent *glogEvent = new GlogEvent();
     GlogEventList glogevents;
     QSet<quint32> csvIds;
     QByteArray cell;
@@ -105,72 +105,72 @@ GlogEventList CSVWorker::actualParse() {
                     // ID is the first one
                     case 1:
                         //qDebug() << "got ID" << cell;
-                        msg->id = toInt(cell);
+                        glogEvent->id = toInt(cell);
                         break;
                     case 2:
                         //qDebug() << "got type" << cell;
-                        msg->eventTypeName = QString::fromUtf8(cell);
+                        glogEvent->eventTypeName = QString::fromUtf8(cell);
                         break;
                     case 3:
-                        msg->isOutgoing = (bool) toInt(cell);
-                        //qDebug() << "got outgoing" << msg->isOutgoing;
+                        glogEvent->isOutgoing = (bool) toInt(cell);
+                        //qDebug() << "got outgoing" << glogEvent->isOutgoing;
                         break;
                     case 4:
-                        msg->storageTime = toLL(cell);
-                        //qDebug() << "got storageTime" << msg->storageTime;
+                        glogEvent->storageTime = toLL(cell);
+                        //qDebug() << "got storageTime" << glogEvent->storageTime;
                         break;
                     case 5:
-                        msg->startTime = toLL(cell);
-                        //qDebug() << "got startTime" << msg->startTime;
+                        glogEvent->startTime = toLL(cell);
+                        //qDebug() << "got startTime" << glogEvent->startTime;
                         break;
                     case 6:
-                        msg->endTime = toLL(cell);
-                        //qDebug() << "got endTime" << msg->endTime;
+                        glogEvent->endTime = toLL(cell);
+                        //qDebug() << "got endTime" << glogEvent->endTime;
                         break;
                     case 7:
-                        msg->isRead = (bool) toInt(cell);
-                        //qDebug() << "got isRead" << msg->isRead;
+                        glogEvent->isRead = (bool) toInt(cell);
+                        //qDebug() << "got isRead" << glogEvent->isRead;
                         break;
                     case 8:
-                        msg->flags = toInt(cell);
-                        //qDebug() << "got flags" << msg->flags;
+                        glogEvent->flags = toInt(cell);
+                        //qDebug() << "got flags" << glogEvent->flags;
                         break;
                     case 9:
-                        msg->bytesSent = toInt(cell);
-                        //qDebug() << "got bytesSent" << msg->bytesSent;
+                        glogEvent->bytesSent = toInt(cell);
+                        //qDebug() << "got bytesSent" << glogEvent->bytesSent;
                         break;
                     case 10:
-                        msg->bytesReceived = toInt(cell);
-                        //qDebug() << "got bytesReceived" << msg->bytesReceived;
+                        glogEvent->bytesReceived = toInt(cell);
+                        //qDebug() << "got bytesReceived" << glogEvent->bytesReceived;
                         break;
                     case 11:
-                        msg->localUID = QString::fromUtf8(cell);
-                        //qDebug() << "got localUID" << msg->localUID;
+                        glogEvent->localUID = QString::fromUtf8(cell);
+                        //qDebug() << "got localUID" << glogEvent->localUID;
                         break;
                     case 12:
-                        msg->localName = QString::fromUtf8(cell);
-                        //qDebug() << "got localName" << msg->localName;
+                        glogEvent->localName = QString::fromUtf8(cell);
+                        //qDebug() << "got localName" << glogEvent->localName;
                         break;
                     case 13:
-                        msg->remoteUID = QString::fromUtf8(cell);
-                        //qDebug() << "got remoteUID" << msg->remoteUID;
+                        glogEvent->remoteUID = QString::fromUtf8(cell);
+                        //qDebug() << "got remoteUID" << glogEvent->remoteUID;
                         break;
                     case 14:
-                        msg->remoteName = QString::fromUtf8(cell);
-                        //qDebug() << "got remoteName" << msg->remoteName;
+                        glogEvent->remoteName = QString::fromUtf8(cell);
+                        //qDebug() << "got remoteName" << glogEvent->remoteName;
                         break;
                     case 15:
-                        msg->channel = QString::fromUtf8(cell);
-                        //qDebug() << "got channel" << msg->channel;
+                        glogEvent->channel = QString::fromUtf8(cell);
+                        //qDebug() << "got channel" << glogEvent->channel;
                         break;
                     case 16:
                         // FIXME: The parser should handle a glogevent whose content is only ;
                         if (cell.size() == 0) {
-                            msg->freeText = QString(";");
+                            glogEvent->freeText = QString(";");
                         } else {
-                            msg->freeText = QString::fromUtf8(cell);
+                            glogEvent->freeText = QString::fromUtf8(cell);
                         }
-                        //qDebug() << "got freeText" << msg->freeText;
+                        //qDebug() << "got freeText" << glogEvent->freeText;
                         break;
                     default:
                         //qDebug()  << "Unhandled cell count" << seenCells << cell;
@@ -188,34 +188,34 @@ GlogEventList CSVWorker::actualParse() {
             rowNum++;
             //qDebug() << "Hit newline with seenCells" << seenCells << "and cell" << cell;
             if (seenCells == ROW_LENGTH - 1 && c1 == '\r' && c2 == '"') {
-                if (msg->eventTypeName.compare(SMS_TYPE) == 0) {
-                    msg->groupUID = cell;
-                    //qDebug() << "got groupUID" << msg->groupUID;
+                if (glogEvent->eventTypeName.compare(SMS_TYPE) == 0) {
+                    glogEvent->groupUID = cell;
+                    //qDebug() << "got groupUID" << glogEvent->groupUID;
 
                     // Don't insert empty remote uids or such into map
-                    if (msg->remoteUID.compare(QString("")) != 0 && !groupUidMap.contains(msg->groupUID)) {
-                        groupUidMap.insert(msg->groupUID, msg->remoteUID);
+                    if (glogEvent->remoteUID.compare(QString("")) != 0 && !groupUidMap.contains(glogEvent->groupUID)) {
+                        groupUidMap.insert(glogEvent->groupUID, glogEvent->remoteUID);
                     }
 
-                    //qDebug() << rowNum + 1 << msg->id << msg->remoteUID << msg->freeText;
-                    if (!csvIds.contains(msg->id)) {
-                        glogevents.push_back(msg);
-                        csvIds.insert(msg->id);
+                    //qDebug() << rowNum + 1 << glogEvent->id << glogEvent->remoteUID << glogEvent->freeText;
+                    if (!csvIds.contains(glogEvent->id)) {
+                        glogevents.push_back(glogEvent);
+                        csvIds.insert(glogEvent->id);
                     } else {
                         this->seenCSVDuplicates++;
                         emit seenCSVDuplicatesChanged(this->seenCSVDuplicates);
-                        delete msg;
+                        delete glogEvent;
                     }
                     if (glogevents.size() % 100 == 0) {
                         emit seenSMSChanged(glogevents.size());
                         usleep(10 * 1000); // Sleep 10ms to make sure this works
                     }
                 } else {
-                    delete msg;
+                    delete glogEvent;
                 }
                 this->seenEntries++;
                 emit seenEntriesChanged(this->seenEntries);
-                msg = new GlogEvent();
+                glogEvent = new GlogEvent();
 
                 // Reset state
                 seenCells = 0;

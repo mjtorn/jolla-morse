@@ -225,18 +225,18 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
         // Go through our glogevents and see if we need to insert them.
         // Insert them if we do.
         for (int j=0; j<glogevents.size(); j++) {
-            GlogEvent *msg = glogevents.at(j);
+            GlogEvent *glogEvent = glogevents.at(j);
 
             QDateTime startTime;
-            startTime.setTime_t(msg->startTime);
+            startTime.setTime_t(glogEvent->startTime);
 
             // The n900 dump has end times only for incoming glogevents
             // but having 0 on Jolla screws up the ordering.
             QDateTime endTime;
-            if (msg->endTime == 0) {
-                endTime.setTime_t(msg->startTime);
+            if (glogEvent->endTime == 0) {
+                endTime.setTime_t(glogEvent->startTime);
             } else {
-                endTime.setTime_t(msg->endTime);
+                endTime.setTime_t(glogEvent->endTime);
             }
 
             //qDebug() << "found in csv" << startTime.toString(Qt::TextDate);
@@ -249,7 +249,7 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
                 qDebug() << "Going to skip key" << key;
             }*/
 
-            s += QString("|") + msg->freeText;
+            s += QString("|") + glogEvent->freeText;
 
             if (!hashlets.contains(s)) {
                 CommHistory::EventModel eventModel;
@@ -259,8 +259,8 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
                 e.setLocalUid(GROUP_LOCAL_UID);
                 e.setStartTime(startTime);
                 e.setEndTime(endTime);
-                (msg->isOutgoing) ? e.setIsRead(true) : e.setIsRead(msg->isRead);
-                (msg->isOutgoing) ? e.setDirection(CommHistory::Event::Outbound) : e.setDirection(CommHistory::Event::Inbound);
+                (glogEvent->isOutgoing) ? e.setIsRead(true) : e.setIsRead(glogEvent->isRead);
+                (glogEvent->isOutgoing) ? e.setDirection(CommHistory::Event::Outbound) : e.setDirection(CommHistory::Event::Inbound);
                 // Sent glogevents are sent
                 // Also only they have lastModified
                 if (e.direction() == CommHistory::Event::Outbound) {
@@ -272,11 +272,11 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
                 // but the actual group version of the glogevent is without remoteUids.
                 if (!key.contains(','))
                     e.setRemoteUid(key);
-                e.setFreeText(msg->freeText);
+                e.setFreeText(glogEvent->freeText);
 
                 int retval = eventModel.addEvent(e);
                 if (!retval) {
-                    qCritical() << "Failed adding event for glogevent" << msg->id;
+                    qCritical() << "Failed adding event for glogevent" << glogEvent->id;
                     emit duplicateSMSChanged(-1);
                     emit insertedSMSChanged(-1);
                     return;
