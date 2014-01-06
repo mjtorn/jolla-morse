@@ -2,12 +2,17 @@
 #define GLOGEVENTOBJECT_H
 
 #include <QList>
+#include <QString>
 #include <QObject>
 
 class GlogEvent : public QObject
 {
     Q_OBJECT
 public:
+    QString SMS_TYPE;
+    QString CALL_TYPE;
+    QString CALL_MISSED_TYPE;
+
     explicit GlogEvent(QObject *parent = 0);
     quint32 id;
     QString eventTypeName;  // Doesn't look interesting to Jolla
