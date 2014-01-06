@@ -311,6 +311,7 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
 
         // Go through our glogevents and see if we need to insert them.
         // Insert them if we do.
+        bool prevWasSMS = false;
         for (int j=0; j<glogevents.size(); j++) {
             GlogEvent *glogEvent = glogevents.at(j);
 
@@ -331,14 +332,16 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
 
                     if (!glogEvent->isCall()) {
                         insertedSMS++;
-                        if (insertedSMS % 100 == 0) {
+                        if (insertedSMS % 100 == 0 || !prevWasSMS) {
                             emit insertedSMSChanged(insertedSMS);
                         }
+                        prevWasSMS = true;
                     } else {
                         insertedCalls++;
-                        if (insertedCalls % 100 == 0) {
+                        if (insertedCalls % 100 == 0 || prevWasSMS) {
                             emit insertedCallsChanged(insertedCalls);
                         }
+                        prevWasSMS = false;
                     }
                 } else {
                     duplicate++;
