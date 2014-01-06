@@ -56,6 +56,18 @@ to the Group with both numbers.
 There are discrepancies between the n900 and Jolla data here and there, please refer
 to the comments in insertworker.cpp for more info.
 
+The way Jolla appears to store phone calls is as follows:
+
+Outgoing calls: direction=2, isRead=1, isMissedCall=0, endTime <> startTime
+
+Outgoing calls, aborted by caller or receiver: direction=2, isRead=1, isMissedCall=0, endTime = startTime
+
+Incoming, aborted calls: direction=1, isRead=0, isMissedCall=0, endTime = startTime
+
+Incoming, called canceled: direction=1, isRead=0, isMissedCall=1, endTime = startTime
+
+Why outgoing calls are marked read is beyond me.
+
 Caveats
 -------
 
