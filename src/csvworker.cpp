@@ -8,7 +8,7 @@
 #include <QString>
 
 QString FIRST_LINE = QString("\"ID\";\"EventTypes.name\";\"Events.Outgoing\";\"storage_time\";\"start_time\";\"end_time\";\"is_read\";\"flags\";\"bytes_sent\";\"bytes_received\";\"local_uid\";\"local_name\";\"remote_uid\";\"remote_name\";\"channel\";\"free_text\";\"group_uid\"\r\n");
-QString SMS_TYPE = QString("RTCOM_EL_EVENTTYPE_SMS_GLOGEVENT");
+QString SMS_TYPE = QString("RTCOM_EL_EVENTTYPE_SMS_MESSAGE");
 
 CSVWorker::CSVWorker(QString filepath) :
     QThread()
