@@ -36,6 +36,7 @@ CSVHandler::CSVHandler(QObject *parent) :
     this->seenGroups = 0;
     this->duplicateSMS = 0;
     this->insertedSMS = 0;
+    this->insertedCalls = 0;
 }
 
 QStringList CSVHandler::getCSVFiles() {
@@ -174,6 +175,7 @@ void CSVHandler::parseFile() {
         this->setNewGroups(0);
         this->setDuplicateSMS(0);
         this->setInsertedSMS(0);
+        this->setInsertedCalls(0);
 
         this->working = 1;
         CSVWorker *csvWorker = new CSVWorker(this->getFilePath());
