@@ -46,7 +46,10 @@ void InsertWorker::setGrouped(GlogEventList glogevents) {
     // XXX: There's an issue where a glogevent that belongs to
     // many groups will get the wrong remoteUID.
     // Use the group keys later to counterbalance that.
+    GlogEvent *glogEvent;
     for (int i=0; i<glogevents.size() - 1; i++) {
+        glogEvent = glogevents.at(i);
+
         remoteUid = glogevents.at(i)->remoteUID;
         freeText = glogevents.at(i)->freeText;
         nextRemoteUid = glogevents.at(i + 1)->remoteUID;
@@ -56,7 +59,8 @@ void InsertWorker::setGrouped(GlogEventList glogevents) {
         remoteUids.insert(remoteUid);
 
         // Assume same-group glogevents are in consequent order
-        if (freeText.compare(nextFreeText) != 0) {
+        // but also split into new group if we're not an sms
+        if (freeText.compare(nextFreeText) != 0 || glogEvent->isCall()) {
             remoteUidList = remoteUids.toList();
             remoteUidList.sort();
             joinedRemoteUids = remoteUidList.join(",");
