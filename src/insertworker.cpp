@@ -184,18 +184,10 @@ QHash<QString, CommHistory::Group> InsertWorker::handleGroups(GlogEventList glog
     return dbGroupRemoteUids;
 }
 
-QString InsertWorker::getCheck(GlogEvent *glogEvent, QDateTime *startTime, QDateTime *endTime, QString *key) {
+QString InsertWorker::getCheck(GlogEvent *glogEvent, QDateTime *startTime, QString *key) {
     QString s;
 
     startTime->setTime_t(glogEvent->startTime);
-
-    // The n900 dump has end times only for incoming messages
-    // but having 0 on Jolla screws up the ordering.
-    if (glogEvent->endTime == 0) {
-        endTime->setTime_t(glogEvent->startTime);
-    } else {
-        endTime->setTime_t(glogEvent->endTime);
-    }
 
     s = startTime->toString(Qt::TextDate) + QString("|");
 
@@ -211,10 +203,19 @@ QString InsertWorker::getCheck(GlogEvent *glogEvent, QDateTime *startTime, QDate
     return s;
 }
 
-int InsertWorker::createEvent(GlogEvent *glogEvent, CommHistory::Group group, QDateTime startTime, QDateTime endTime, QString key) {
+int InsertWorker::createEvent(GlogEvent *glogEvent, CommHistory::Group group, QDateTime startTime, QString key) {
     CommHistory::EventModel eventModel;
 
     CommHistory::Event e;
+
+    // The n900 dump has end times only for incoming messages
+    // but having 0 on Jolla screws up the ordering.
+    QDateTime endTime;
+    if (glogEvent->endTime == 0) {
+        endTime.setTime_t(glogEvent->startTime);
+    } else {
+        endTime.setTime_t(glogEvent->endTime);
+    }
 
     // Set type, sms or call
     if (!glogEvent->isCall()) {
@@ -239,8 +240,8 @@ int InsertWorker::createEvent(GlogEvent *glogEvent, CommHistory::Group group, QD
         } else {
             /*
              * n900 stores end_time = 0 for missed calls.
-             * getCheck resets that to equal start_time,
-             * which is how Jolla stores missed calls!
+             * The top of this method resets that to equal
+             * start_time, which is how Jolla stores missed calls!
              *
              * The n900 does not store call durations, unlike
              * Jolla, so every phone call will now have lasted a second.
@@ -316,11 +317,10 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
             // Deal with supported types; SMS, CALL, CALL_MISSED
             if (glogEvent->isSupported()) {
                 QDateTime startTime;
-                QDateTime endTime;
-                s = getCheck(glogEvent, &startTime, &endTime, &key);
+                s = getCheck(glogEvent, &startTime, &key);
 
                 if (!hashlets.contains(s)) {
-                    int retval = createEvent(glogEvent, group, startTime, endTime, key);
+                    int retval = createEvent(glogEvent, group, startTime, key);
                     if (!retval) {
                         qCritical() << "Failed adding event for glogevent" << glogEvent->id;
                         emit duplicateSMSChanged(-1);
