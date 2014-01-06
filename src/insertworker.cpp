@@ -268,7 +268,6 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
 
     CommHistory::ConversationModel conversationModel;
     conversationModel.enableContactChanges(false);
-    conversationModel.setFilter(CommHistory::Event::SMSEvent, GROUP_LOCAL_UID, CommHistory::Event::UnknownDirection);
     bool retval = conversationModel.getEvents(groupIds);
     if (!retval) {
         qCritical() << "Failed getting events for groups";
