@@ -180,6 +180,34 @@ QHash<QString, CommHistory::Group> InsertWorker::handleGroups(GlogEventList glog
     return dbGroupRemoteUids;
 }
 
+QString InsertWorker::getCheck(GlogEvent *glogEvent, QDateTime *startTime, QDateTime *endTime, QString *key) {
+    QString s;
+
+    startTime->setTime_t(glogEvent->startTime);
+
+    // The n900 dump has end times only for incoming messages
+    // but having 0 on Jolla screws up the ordering.
+    if (glogEvent->endTime == 0) {
+        endTime->setTime_t(glogEvent->startTime);
+    } else {
+        endTime->setTime_t(glogEvent->endTime);
+    }
+
+    s = startTime->toString(Qt::TextDate) + QString("|");
+    s += endTime->toString(Qt::TextDate) + QString("|");
+
+    // GlogEvents sent to many people have empty remoteUid
+    if (!key->contains(',')) {
+        s += key;
+    } /*else {
+        qDebug() << "Going to skip key" << key;
+    }*/
+
+    s += QString("|") + glogEvent->freeText;
+
+    return s;
+}
+
 void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRemoteUids) {
     groups = this->groups;
     int duplicate = 0;
@@ -231,29 +259,8 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
             // Deal with different types different
             if (glogEvent->eventTypeName.compare(glogEvent->SMS_TYPE) == 0) {
                 QDateTime startTime;
-                startTime.setTime_t(glogEvent->startTime);
-
-                // The n900 dump has end times only for incoming glogevents
-                // but having 0 on Jolla screws up the ordering.
                 QDateTime endTime;
-                if (glogEvent->endTime == 0) {
-                    endTime.setTime_t(glogEvent->startTime);
-                } else {
-                    endTime.setTime_t(glogEvent->endTime);
-                }
-
-                //qDebug() << "found in csv" << startTime.toString(Qt::TextDate);
-                s = startTime.toString(Qt::TextDate) + QString("|");
-                s += endTime.toString(Qt::TextDate) + QString("|");
-
-                // GlogEvents sent to many people have empty remoteUid
-                if (!key.contains(',')) {
-                    s += key;
-                } /*else {
-                    qDebug() << "Going to skip key" << key;
-                }*/
-
-                s += QString("|") + glogEvent->freeText;
+                s = getCheck(glogEvent, &startTime, &endTime, &key);
 
                 if (!hashlets.contains(s)) {
                     CommHistory::EventModel eventModel;

@@ -1,6 +1,7 @@
 #ifndef INSERTWORKER_H
 #define INSERTWORKER_H
 
+#include <QDateTime>
 #include <QMultiHash>
 #include <QSet>
 #include <QString>
@@ -19,6 +20,7 @@ private:
     Q_INVOKABLE CommHistory::Group createGroup(QStringList remoteUids);
     Q_INVOKABLE QHash<QString, CommHistory::Group> handleGroups(GlogEventList glogevents);
     Q_INVOKABLE void handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRemoteUids);
+    Q_INVOKABLE QString getCheck(GlogEvent *glogEvent, QDateTime *startTime, QDateTime *endTime, QString *key);
     GlogEventList glogevents;
     QMultiHash<QString, GlogEvent*> groups;
 
