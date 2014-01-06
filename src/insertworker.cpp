@@ -217,11 +217,18 @@ int InsertWorker::createEvent(GlogEvent *glogEvent, CommHistory::Group group, QD
 
     CommHistory::Event e;
 
-    e.setType(CommHistory::Event::SMSEvent);
+    if (!glogEvent->isCall()) {
+        e.setType(CommHistory::Event::SMSEvent);
+        (glogEvent->isOutgoing) ? e.setIsRead(true) : e.setIsRead(glogEvent->isRead);
+    } else {
+        e.setType(CommHistory::Event::CallEvent);
+        if (glogEvent->eventTypeName.compare(glogEvent->CALL_MISSED_TYPE)) {
+            e.setIsMissedCall(true);
+        }
+    }
     e.setLocalUid(GROUP_LOCAL_UID);
     e.setStartTime(startTime);
     e.setEndTime(endTime);
-    (glogEvent->isOutgoing) ? e.setIsRead(true) : e.setIsRead(glogEvent->isRead);
     (glogEvent->isOutgoing) ? e.setDirection(CommHistory::Event::Outbound) : e.setDirection(CommHistory::Event::Inbound);
     // Sent glogevents are sent
     // Also only they have lastModified
@@ -230,8 +237,9 @@ int InsertWorker::createEvent(GlogEvent *glogEvent, CommHistory::Group group, QD
         e.setStatus(CommHistory::Event::SentStatus);
     }
     e.setGroupId(group.id());
-    // For group glogevents make sure the event is inserted foreach group,
+    // For group messages make sure the event is inserted foreach group,
     // but the actual group version of the glogevent is without remoteUids.
+    // Also hope this is true for phone calls.
     if (!key.contains(','))
         e.setRemoteUid(key);
     e.setFreeText(glogEvent->freeText);
@@ -289,8 +297,8 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
         for (int j=0; j<glogevents.size(); j++) {
             GlogEvent *glogEvent = glogevents.at(j);
 
-            // Deal with different types different
-            if (glogEvent->eventTypeName.compare(glogEvent->SMS_TYPE) == 0) {
+            // Deal with supported types; SMS, CALL, CALL_MISSED
+            if (glogEvent->isSupported()) {
                 QDateTime startTime;
                 QDateTime endTime;
                 s = getCheck(glogEvent, &startTime, &endTime, &key);
@@ -304,10 +312,14 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
                         return;
                     }
 
-                    inserted++;
+                    if (!glogEvent->isCall()) {
+                        inserted++;
 
-                    if (inserted % 100 == 0) {
-                        emit insertedSMSChanged(inserted);
+                        if (inserted % 100 == 0) {
+                            emit insertedSMSChanged(inserted);
+                        }
+                    } else {
+                        // Do something here
                     }
                 } else {
                     duplicate++;
