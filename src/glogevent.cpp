@@ -7,3 +7,9 @@ GlogEvent::GlogEvent(QObject *parent) :
     this->CALL_TYPE = QString("RTCOM_EL_EVENTTYPE_CALL");
     this->CALL_MISSED_TYPE = QString("RTCOM_EL_EVENTTYPE_CALL_MISSED");
 }
+
+bool GlogEvent::isSupported() {
+    return (this->eventTypeName.compare(this->SMS_TYPE) == 0 \
+             || this->eventTypeName.compare(this->CALL_TYPE) == 0 \
+             || this->eventTypeName.compare(this->CALL_MISSED_TYPE) == 0);
+}

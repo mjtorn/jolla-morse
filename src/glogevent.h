@@ -14,6 +14,7 @@ public:
     QString CALL_MISSED_TYPE;
 
     explicit GlogEvent(QObject *parent = 0);
+    Q_INVOKABLE bool isSupported(); // SMS and phone calls we can do.
     quint32 id;
     QString eventTypeName;  // Doesn't look interesting to Jolla
     bool isOutgoing;
