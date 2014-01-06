@@ -216,6 +216,7 @@ int InsertWorker::createEvent(GlogEvent *glogEvent, CommHistory::Group group, QD
 
     CommHistory::Event e;
 
+    // Set type, sms or call
     if (!glogEvent->isCall()) {
         e.setType(CommHistory::Event::SMSEvent);
         (glogEvent->isOutgoing) ? e.setIsRead(true) : e.setIsRead(glogEvent->isRead);
@@ -232,8 +233,25 @@ int InsertWorker::createEvent(GlogEvent *glogEvent, CommHistory::Group group, QD
     // Sent glogevents are sent
     // Also only they have lastModified
     if (e.direction() == CommHistory::Event::Outbound) {
-        e.setLastModified(startTime);
-        e.setStatus(CommHistory::Event::SentStatus);
+        if (!glogEvent->isCall()) {
+            e.setLastModified(startTime);
+            e.setStatus(CommHistory::Event::SentStatus);
+        } else {
+            /*
+             * n900 stores end_time = 0 for missed calls.
+             * getCheck resets that to equal start_time,
+             * which is how Jolla stores missed calls!
+             *
+             * The n900 does not store call durations, unlike
+             * Jolla, so every phone call will now have lasted a second.
+             */
+            if (glogEvent->eventTypeName.compare(glogEvent->CALL_TYPE) == 0) {
+                e.setEndTime(e.endTime().addSecs(1));
+            }
+            // Outgoing calls are also considered read(!)
+            // regardless of whether or not they were answered
+            e.setIsRead(true);
+        }
     }
     e.setGroupId(group.id());
     // For group messages make sure the event is inserted foreach group,
