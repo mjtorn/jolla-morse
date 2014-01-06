@@ -21,6 +21,8 @@ private:
     Q_INVOKABLE QHash<QString, CommHistory::Group> handleGroups(GlogEventList glogevents);
     Q_INVOKABLE void handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRemoteUids);
     Q_INVOKABLE QString getCheck(GlogEvent *glogEvent, QDateTime *startTime, QDateTime *endTime, QString *key);
+    Q_INVOKABLE int createEvent(GlogEvent *glogEvent, CommHistory::Group group, QDateTime startTime, QDateTime endTime, QString key);
+
     GlogEventList glogevents;
     QMultiHash<QString, GlogEvent*> groups;
 

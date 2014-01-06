@@ -208,6 +208,35 @@ QString InsertWorker::getCheck(GlogEvent *glogEvent, QDateTime *startTime, QDate
     return s;
 }
 
+int InsertWorker::createEvent(GlogEvent *glogEvent, CommHistory::Group group, QDateTime startTime, QDateTime endTime, QString key) {
+    CommHistory::EventModel eventModel;
+
+    CommHistory::Event e;
+
+    e.setType(CommHistory::Event::SMSEvent);
+    e.setLocalUid(GROUP_LOCAL_UID);
+    e.setStartTime(startTime);
+    e.setEndTime(endTime);
+    (glogEvent->isOutgoing) ? e.setIsRead(true) : e.setIsRead(glogEvent->isRead);
+    (glogEvent->isOutgoing) ? e.setDirection(CommHistory::Event::Outbound) : e.setDirection(CommHistory::Event::Inbound);
+    // Sent glogevents are sent
+    // Also only they have lastModified
+    if (e.direction() == CommHistory::Event::Outbound) {
+        e.setLastModified(startTime);
+        e.setStatus(CommHistory::Event::SentStatus);
+    }
+    e.setGroupId(group.id());
+    // For group glogevents make sure the event is inserted foreach group,
+    // but the actual group version of the glogevent is without remoteUids.
+    if (!key.contains(','))
+        e.setRemoteUid(key);
+    e.setFreeText(glogEvent->freeText);
+
+    int retval = eventModel.addEvent(e);
+
+    return retval;
+}
+
 void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRemoteUids) {
     groups = this->groups;
     int duplicate = 0;
@@ -263,29 +292,7 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
                 s = getCheck(glogEvent, &startTime, &endTime, &key);
 
                 if (!hashlets.contains(s)) {
-                    CommHistory::EventModel eventModel;
-
-                    CommHistory::Event e;
-                    e.setType(CommHistory::Event::SMSEvent);
-                    e.setLocalUid(GROUP_LOCAL_UID);
-                    e.setStartTime(startTime);
-                    e.setEndTime(endTime);
-                    (glogEvent->isOutgoing) ? e.setIsRead(true) : e.setIsRead(glogEvent->isRead);
-                    (glogEvent->isOutgoing) ? e.setDirection(CommHistory::Event::Outbound) : e.setDirection(CommHistory::Event::Inbound);
-                    // Sent glogevents are sent
-                    // Also only they have lastModified
-                    if (e.direction() == CommHistory::Event::Outbound) {
-                        e.setLastModified(startTime);
-                        e.setStatus(CommHistory::Event::SentStatus);
-                    }
-                    e.setGroupId(group.id());
-                    // For group glogevents make sure the event is inserted foreach group,
-                    // but the actual group version of the glogevent is without remoteUids.
-                    if (!key.contains(','))
-                        e.setRemoteUid(key);
-                    e.setFreeText(glogEvent->freeText);
-
-                    int retval = eventModel.addEvent(e);
+                    int retval = createEvent(glogEvent, group, startTime, endTime, key);
                     if (!retval) {
                         qCritical() << "Failed adding event for glogevent" << glogEvent->id;
                         emit duplicateSMSChanged(-1);
