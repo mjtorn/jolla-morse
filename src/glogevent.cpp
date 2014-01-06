@@ -13,3 +13,8 @@ bool GlogEvent::isSupported() {
              || this->eventTypeName.compare(this->CALL_TYPE) == 0 \
              || this->eventTypeName.compare(this->CALL_MISSED_TYPE) == 0);
 }
+
+bool GlogEvent::isCall() {
+    return (this->eventTypeName.compare(this->CALL_TYPE) == 0 \
+             || this->eventTypeName.compare(this->CALL_MISSED_TYPE) == 0);
+}
