@@ -209,8 +209,9 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
         CommHistory::Event e = conversationModel.event(conversationModel.index(i, 0));
         // It's in UTC by default
         QDateTime dbStartTime = e.startTime();
+        QDateTime dbEndTime = e.endTime();
         //qDebug() << "found in db" << dbStartTime.toLocalTime().toString(Qt::TextDate);
-        s = dbStartTime.toLocalTime().toString(Qt::TextDate) + QString("|") + e.remoteUid() + QString("|") + e.freeText();
+        s = dbStartTime.toLocalTime().toString(Qt::TextDate) + QString("|") +dbEndTime.toLocalTime().toString(Qt::TextDate) + QString("|") + e.remoteUid() + QString("|") + e.freeText();
         hashlets.insert(s);
     }
 
@@ -243,6 +244,7 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
 
                 //qDebug() << "found in csv" << startTime.toString(Qt::TextDate);
                 s = startTime.toString(Qt::TextDate) + QString("|");
+                s += endTime.toString(Qt::TextDate) + QString("|");
 
                 // GlogEvents sent to many people have empty remoteUid
                 if (!key.contains(',')) {
