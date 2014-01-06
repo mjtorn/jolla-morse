@@ -69,7 +69,7 @@ Page {
 
             Label {
                 id: sms_label
-                text: "Seen SMS: " + appWindow.csvhandler.seenSMS
+                text: "Seen SMS and calls: " + appWindow.csvhandler.seenSMS
                 x: Theme.paddingLarge
             }
 
