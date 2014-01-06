@@ -187,7 +187,10 @@ GlogEventList CSVWorker::actualParse() {
             rowNum++;
             //qDebug() << "Hit newline with seenCells" << seenCells << "and cell" << cell;
             if (seenCells == ROW_LENGTH - 1 && c1 == '\r' && c2 == '"') {
-                if (glogEvent->eventTypeName.compare(glogEvent->SMS_TYPE) == 0) {
+                qDebug() << glogEvent->eventTypeName;
+                if (glogEvent->eventTypeName.compare(glogEvent->SMS_TYPE) == 0 \
+                     || glogEvent->eventTypeName.compare(glogEvent->CALL_TYPE) == 0 \
+                     || glogEvent->eventTypeName.compare(glogEvent->CALL_MISSED_TYPE) == 0) {
                     glogEvent->groupUID = cell;
                     //qDebug() << "got groupUID" << glogEvent->groupUID;
 
@@ -205,6 +208,7 @@ GlogEventList CSVWorker::actualParse() {
                         emit seenCSVDuplicatesChanged(this->seenCSVDuplicates);
                         delete glogEvent;
                     }
+
                     if (glogevents.size() % 100 == 0) {
                         emit seenSMSChanged(glogevents.size());
                         usleep(10 * 1000); // Sleep 10ms to make sure this works
