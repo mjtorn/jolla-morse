@@ -8,7 +8,7 @@
 #include <QString>
 
 QString FIRST_LINE = QString("\"ID\";\"EventTypes.name\";\"Events.Outgoing\";\"storage_time\";\"start_time\";\"end_time\";\"is_read\";\"flags\";\"bytes_sent\";\"bytes_received\";\"local_uid\";\"local_name\";\"remote_uid\";\"remote_name\";\"channel\";\"free_text\";\"group_uid\"\r\n");
-QString SMS_TYPE = QString("RTCOM_EL_EVENTTYPE_SMS_MESSAGE");
+QString SMS_TYPE = QString("RTCOM_EL_EVENTTYPE_SMS_GLOGEVENT");
 
 CSVWorker::CSVWorker(QString filepath) :
     QThread()
@@ -37,7 +37,7 @@ int CSVWorker::getSeenCSVDuplicates() {
 void CSVWorker::run() Q_DECL_OVERRIDE {
     QString filepath = this->filepath;
     qDebug() << "CSVWorker::run(" << filepath << ")";
-    MessageList messages;
+    GlogEventList glogevents;
 
     QFile file(filepath);
     file.open(QIODevice::ReadOnly);
@@ -56,19 +56,19 @@ void CSVWorker::run() Q_DECL_OVERRIDE {
     csvData = file.readAll();
     emit readBytesChanged(csvData.size());
 
-    messages = actualParse();
-    qDebug() << messages.size();
+    glogevents = actualParse();
+    qDebug() << glogevents.size();
 
     end:
         file.close();
 
-    emit parseFileCompleted(messages);
+    emit parseFileCompleted(glogevents);
 }
-MessageList CSVWorker::actualParse() {
+GlogEventList CSVWorker::actualParse() {
     int ROW_LENGTH = 17;
 
-    Message *msg = new Message();
-    MessageList messages;
+    GlogEvent *msg = new GlogEvent();
+    GlogEventList glogevents;
     QSet<quint32> csvIds;
     QByteArray cell;
     bool inQuotes = false;
@@ -164,7 +164,7 @@ MessageList CSVWorker::actualParse() {
                         //qDebug() << "got channel" << msg->channel;
                         break;
                     case 16:
-                        // FIXME: The parser should handle a message whose content is only ;
+                        // FIXME: The parser should handle a glogevent whose content is only ;
                         if (cell.size() == 0) {
                             msg->freeText = QString(";");
                         } else {
@@ -174,7 +174,7 @@ MessageList CSVWorker::actualParse() {
                         break;
                     default:
                         //qDebug()  << "Unhandled cell count" << seenCells << cell;
-                        // FIXME: This is just horrible, only because of a message whose content is ;
+                        // FIXME: This is just horrible, only because of a glogevent whose content is ;
                         seenCells--;
                 }
 
@@ -199,15 +199,15 @@ MessageList CSVWorker::actualParse() {
 
                     //qDebug() << rowNum + 1 << msg->id << msg->remoteUID << msg->freeText;
                     if (!csvIds.contains(msg->id)) {
-                        messages.push_back(msg);
+                        glogevents.push_back(msg);
                         csvIds.insert(msg->id);
                     } else {
                         this->seenCSVDuplicates++;
                         emit seenCSVDuplicatesChanged(this->seenCSVDuplicates);
                         delete msg;
                     }
-                    if (messages.size() % 100 == 0) {
-                        emit seenSMSChanged(messages.size());
+                    if (glogevents.size() % 100 == 0) {
+                        emit seenSMSChanged(glogevents.size());
                         usleep(10 * 1000); // Sleep 10ms to make sure this works
                     }
                 } else {
@@ -215,14 +215,14 @@ MessageList CSVWorker::actualParse() {
                 }
                 this->seenEntries++;
                 emit seenEntriesChanged(this->seenEntries);
-                msg = new Message();
+                msg = new GlogEvent();
 
                 // Reset state
                 seenCells = 0;
                 inQuotes = false;
                 cell = "";
             } else {
-                // Or maybe it's a message \n
+                // Or maybe it's a glogevent \n
                 cell.push_back(c);
             }
         } else if (c == '"') {
@@ -246,19 +246,19 @@ MessageList CSVWorker::actualParse() {
     }
     // Resolve the missing ones
     //qDebug() << "keys in map" << groupUidMap.uniqueKeys().size();
-    for (int i=0; i<messages.size(); i++) {
-        if (messages.at(i)->remoteUID.compare(QString("")) == 0) {
-            //qDebug() << "Found empty" << messages.at(i)->id;
-            QString remoteUid = groupUidMap.value(messages.at(i)->groupUID);
-            //qDebug() << remoteUid << "for" << messages.at(i)->groupUID;
-            messages.at(i)->remoteUID = remoteUid;
+    for (int i=0; i<glogevents.size(); i++) {
+        if (glogevents.at(i)->remoteUID.compare(QString("")) == 0) {
+            //qDebug() << "Found empty" << glogevents.at(i)->id;
+            QString remoteUid = groupUidMap.value(glogevents.at(i)->groupUID);
+            //qDebug() << remoteUid << "for" << glogevents.at(i)->groupUID;
+            glogevents.at(i)->remoteUID = remoteUid;
         }
         // XXX: This char* thing is probably bad :D
-        Q_ASSERT_X(messages.at(i)->remoteUID.compare(QString("")) != 0, (char*)messages.at(i)->id, "empty remoteUID");
+        Q_ASSERT_X(glogevents.at(i)->remoteUID.compare(QString("")) != 0, (char*)glogevents.at(i)->id, "empty remoteUID");
     }
     //qDebug() << seenCells;
-    emit seenSMSChanged(messages.size());
-    return messages;
+    emit seenSMSChanged(glogevents.size());
+    return glogevents;
 }
 
 quint32 toInt(QString s) {

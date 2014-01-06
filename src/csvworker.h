@@ -4,8 +4,8 @@
 #include <QString>
 #include <QThread>
 
-#ifndef MESSAGEOBJECT_H
-#include "message.h"
+#ifndef GLOGEVENTOBJECT_H
+#include "glogevent.h"
 #endif
 
 class CSVWorker : public QThread
@@ -18,7 +18,7 @@ private:
     QByteArray csvData;
     QString filepath;
     Q_INVOKABLE void run();
-    Q_INVOKABLE MessageList actualParse();
+    Q_INVOKABLE GlogEventList actualParse();
 public:
     explicit CSVWorker(QString filepath);
     Q_INVOKABLE int getCSVBytes();
@@ -34,7 +34,7 @@ signals:
     void seenEntriesChanged(int seenEntries);
     void seenSMSChanged(int seenSMS);
     void seenCSVDuplicatesChanged(int seenCSVDuplicates);
-    void parseFileCompleted(MessageList messages);
+    void parseFileCompleted(GlogEventList glogevents);
 };
 
 quint32 toInt(QString s);

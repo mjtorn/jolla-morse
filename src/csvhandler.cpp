@@ -153,8 +153,8 @@ void CSVHandler::insertFinished() {
 }
 
 void CSVHandler::parseFile() {
-    qRegisterMetaType<MessageList>("MessageList");
-    qDebug() << "CSVHandler::parseFile() called, registered QList<Message*>";
+    qRegisterMetaType<GlogEventList>("GlogEventList");
+    qDebug() << "CSVHandler::parseFile() called, registered QList<GlogEvent*>";
     if (this->working == 0) {
         this->setState(QString("Parsing"));
 
@@ -170,7 +170,7 @@ void CSVHandler::parseFile() {
         CSVWorker *csvWorker = new CSVWorker(this->getFilePath());
 
         // Required methods
-        connect(csvWorker, &CSVWorker::parseFileCompleted, this, &CSVHandler::insertMessages);
+        connect(csvWorker, &CSVWorker::parseFileCompleted, this, &CSVHandler::insertGlogEvents);
         connect(csvWorker, &CSVWorker::finished, csvWorker, &QObject::deleteLater);
         connect(csvWorker, &CSVWorker::finished, this, &CSVHandler::workerFinished);
         // Transfer the state to QML
@@ -184,12 +184,12 @@ void CSVHandler::parseFile() {
     }
 }
 
-void CSVHandler::insertMessages(MessageList messages) {
-    qDebug() << "Inserting messages:" << messages.size();
+void CSVHandler::insertGlogEvents(GlogEventList glogevents) {
+    qDebug() << "Inserting glogevents:" << glogevents.size();
 
     if (this->working == 1) {
         this->working = 2;
-        InsertWorker *insertWorker = new InsertWorker(messages);
+        InsertWorker *insertWorker = new InsertWorker(glogevents);
 
         // Required methods
         connect(insertWorker, &InsertWorker::finished, insertWorker, &QObject::deleteLater);

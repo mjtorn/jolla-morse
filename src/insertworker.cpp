@@ -9,73 +9,73 @@
 #include "CommHistory/event.h"
 #include "CommHistory/group.h"
 #include "CommHistory/groupmodel.h"
-#include "message.h"
+#include "glogevent.h"
 #include "time.h"
 
 QString GROUP_LOCAL_UID = "/org/freedesktop/Telepathy/Account/ring/tel/account0";
 
-InsertWorker::InsertWorker(MessageList messages) :
+InsertWorker::InsertWorker(GlogEventList glogevents) :
     QThread()
 {
-    this->messages = messages;
+    this->glogevents = glogevents;
 }
 
-void InsertWorker::setGrouped(MessageList messages) {
+void InsertWorker::setGrouped(GlogEventList glogevents) {
     QSet<QString> remoteUids;    // These take out duplicate UIDs
     QStringList remoteUidList;  // Actually stored in a group
     QString joinedRemoteUids;  // I can hash strings
 
-    // These used to deal with message data
+    // These used to deal with glogevent data
     QString remoteUid;
     QString freeText;
     QString nextRemoteUid;
     QString nextFreeText;
 
-    QMultiHash<QString, Message*> groups;
+    QMultiHash<QString, GlogEvent*> groups;
 
-    if (messages.size() == 0) {
-        qCritical() << "Got no messages!";
+    if (glogevents.size() == 0) {
+        qCritical() << "Got no glogevents!";
         return;
     }
 
     qDebug() << "Getting groups";
 
-    // Check the message body of the next message to see if
-    // we have messages of the same group.
+    // Check the glogevent body of the next glogevent to see if
+    // we have glogevents of the same group.
     //
-    // XXX: There's an issue where a message that belongs to
+    // XXX: There's an issue where a glogevent that belongs to
     // many groups will get the wrong remoteUID.
     // Use the group keys later to counterbalance that.
-    for (int i=0; i<messages.size() - 1; i++) {
-        remoteUid = messages.at(i)->remoteUID;
-        freeText = messages.at(i)->freeText;
-        nextRemoteUid = messages.at(i + 1)->remoteUID;
-        nextFreeText = messages.at(i + 1)->freeText;
+    for (int i=0; i<glogevents.size() - 1; i++) {
+        remoteUid = glogevents.at(i)->remoteUID;
+        freeText = glogevents.at(i)->freeText;
+        nextRemoteUid = glogevents.at(i + 1)->remoteUID;
+        nextFreeText = glogevents.at(i + 1)->freeText;
 
         // Build a stack-like set here
         remoteUids.insert(remoteUid);
 
-        // Assume same-group messages are in consequent order
+        // Assume same-group glogevents are in consequent order
         if (freeText.compare(nextFreeText) != 0) {
             remoteUidList = remoteUids.toList();
             remoteUidList.sort();
             joinedRemoteUids = remoteUidList.join(",");
 
-            groups.insert(joinedRemoteUids, messages.at(i));
+            groups.insert(joinedRemoteUids, glogevents.at(i));
             remoteUids = QSet<QString>();
 
-            // Component remoteUids must get the message too!
+            // Component remoteUids must get the glogevent too!
             if (remoteUidList.size() > 1) {
                 for (int j=0; j<remoteUidList.size(); j++) {
-                    groups.insert(remoteUidList.at(j), messages.at(i));
+                    groups.insert(remoteUidList.at(j), glogevents.at(i));
                 }
             }
         }
     }
 
     // After the for loop we have one more to take care of
-    nextRemoteUid = messages.last()->remoteUID;
-    nextFreeText = messages.last()->freeText;
+    nextRemoteUid = glogevents.last()->remoteUID;
+    nextFreeText = glogevents.last()->freeText;
 
     remoteUids.insert(nextRemoteUid);
 
@@ -83,12 +83,12 @@ void InsertWorker::setGrouped(MessageList messages) {
     remoteUidList.sort();
     joinedRemoteUids = remoteUidList.join(",");
 
-    groups.insert(joinedRemoteUids, messages.last());
+    groups.insert(joinedRemoteUids, glogevents.last());
 
     // Also populate the last one, to be sure, if it was a multi-uid group component
     if (remoteUidList.size() > 1) {
         for (int j=0; j<remoteUidList.size(); j++) {
-            groups.insert(remoteUidList.at(j), messages.last());
+            groups.insert(remoteUidList.at(j), glogevents.last());
         }
     }
 
@@ -118,7 +118,7 @@ CommHistory::Group InsertWorker::createGroup(QStringList remoteUids) {
     return group;
 }
 
-QHash<QString, CommHistory::Group> InsertWorker::handleGroups(MessageList messages) {
+QHash<QString, CommHistory::Group> InsertWorker::handleGroups(GlogEventList glogevents) {
     QHash<QString, CommHistory::Group> dbGroupRemoteUids; // This is all of them, our return value
 
     QStringList groupUidList;
@@ -180,7 +180,7 @@ QHash<QString, CommHistory::Group> InsertWorker::handleGroups(MessageList messag
     return dbGroupRemoteUids;
 }
 
-void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemoteUids) {
+void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRemoteUids) {
     groups = this->groups;
     int duplicate = 0;
     int inserted = 0;
@@ -191,7 +191,7 @@ void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemo
         groupIds.push_back(groupObjects.at(i).id());
     }
 
-    // Get all the messages in the db
+    // Get all the glogevents in the db
     // Store a QSet<QString> of hashlike things we can check against later
     QSet<QString> hashlets;
     QString s;
@@ -218,19 +218,19 @@ void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemo
     QList<QString> groupKeys = groups.uniqueKeys();
     for (int i=0;i<groupKeys.size(); i++) {
         QString key = groupKeys.at(i);
-        MessageList messages = groups.values(key);
+        GlogEventList glogevents = groups.values(key);
         CommHistory::Group group = dbGroupRemoteUids.value(key);
-        //qDebug() << group.toString() << messages;
+        //qDebug() << group.toString() << glogevents;
 
-        // Go through our messages and see if we need to insert them.
+        // Go through our glogevents and see if we need to insert them.
         // Insert them if we do.
-        for (int j=0; j<messages.size(); j++) {
-            Message *msg = messages.at(j);
+        for (int j=0; j<glogevents.size(); j++) {
+            GlogEvent *msg = glogevents.at(j);
 
             QDateTime startTime;
             startTime.setTime_t(msg->startTime);
 
-            // The n900 dump has end times only for incoming messages
+            // The n900 dump has end times only for incoming glogevents
             // but having 0 on Jolla screws up the ordering.
             QDateTime endTime;
             if (msg->endTime == 0) {
@@ -242,7 +242,7 @@ void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemo
             //qDebug() << "found in csv" << startTime.toString(Qt::TextDate);
             s = startTime.toString(Qt::TextDate) + QString("|");
 
-            // Messages sent to many people have empty remoteUid
+            // GlogEvents sent to many people have empty remoteUid
             if (!key.contains(',')) {
                 s += key;
             } /*else {
@@ -261,22 +261,22 @@ void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemo
                 e.setEndTime(endTime);
                 (msg->isOutgoing) ? e.setIsRead(true) : e.setIsRead(msg->isRead);
                 (msg->isOutgoing) ? e.setDirection(CommHistory::Event::Outbound) : e.setDirection(CommHistory::Event::Inbound);
-                // Sent messages are sent
+                // Sent glogevents are sent
                 // Also only they have lastModified
                 if (e.direction() == CommHistory::Event::Outbound) {
                     e.setLastModified(startTime);
                     e.setStatus(CommHistory::Event::SentStatus);
                 }
                 e.setGroupId(group.id());
-                // For group messages make sure the event is inserted foreach group,
-                // but the actual group version of the message is without remoteUids.
+                // For group glogevents make sure the event is inserted foreach group,
+                // but the actual group version of the glogevent is without remoteUids.
                 if (!key.contains(','))
                     e.setRemoteUid(key);
                 e.setFreeText(msg->freeText);
 
                 int retval = eventModel.addEvent(e);
                 if (!retval) {
-                    qCritical() << "Failed adding event for message" << msg->id;
+                    qCritical() << "Failed adding event for glogevent" << msg->id;
                     emit duplicateSMSChanged(-1);
                     emit insertedSMSChanged(-1);
                     return;
@@ -301,16 +301,16 @@ void InsertWorker::handleMessages(QHash<QString, CommHistory::Group> dbGroupRemo
 }
 
 void InsertWorker::run() {
-    MessageList messages = this->messages;
+    GlogEventList glogevents = this->glogevents;
 
     // Parse groups
-    this->setGrouped(messages);
+    this->setGrouped(glogevents);
 
-    QHash<QString, CommHistory::Group> dbGroupRemoteUids = this->handleGroups(messages);
+    QHash<QString, CommHistory::Group> dbGroupRemoteUids = this->handleGroups(glogevents);
 
-    this->handleMessages(dbGroupRemoteUids);
+    this->handleGlogEvents(dbGroupRemoteUids);
 
-    for (int i=0; i<messages.size(); i++) {
-        delete messages.at(i);
+    for (int i=0; i<glogevents.size(); i++) {
+        delete glogevents.at(i);
     }
 }

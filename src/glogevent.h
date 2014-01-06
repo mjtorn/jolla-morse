@@ -1,14 +1,14 @@
-#ifndef MESSAGEOBJECT_H
-#define MESSAGEOBJECT_H
+#ifndef GLOGEVENTOBJECT_H
+#define GLOGEVENTOBJECT_H
 
 #include <QList>
 #include <QObject>
 
-class Message : public QObject
+class GlogEvent : public QObject
 {
     Q_OBJECT
 public:
-    explicit Message(QObject *parent = 0);
+    explicit GlogEvent(QObject *parent = 0);
     quint32 id;
     QString eventTypeName;  // Doesn't look interesting to Jolla
     bool isOutgoing;
@@ -34,6 +34,6 @@ public slots:
 
 };
 
-typedef QList<Message*> MessageList;
+typedef QList<GlogEvent*> GlogEventList;
 
-#endif // MESSAGEOBJECT_H
+#endif // GLOGEVENTOBJECT_H

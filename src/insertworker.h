@@ -8,22 +8,22 @@
 #include <QObject>
 
 #include "CommHistory/group.h"
-#include "message.h"
+#include "glogevent.h"
 
 class InsertWorker : public QThread
 {
     Q_OBJECT
 private:
     Q_INVOKABLE void run();
-    Q_INVOKABLE void setGrouped(MessageList messages);
+    Q_INVOKABLE void setGrouped(GlogEventList glogevents);
     Q_INVOKABLE CommHistory::Group createGroup(QStringList remoteUids);
-    Q_INVOKABLE QHash<QString, CommHistory::Group> handleGroups(MessageList messages);
-    Q_INVOKABLE void handleMessages(QHash<QString, CommHistory::Group> dbGroupRemoteUids);
-    MessageList messages;
-    QMultiHash<QString, Message*> groups;
+    Q_INVOKABLE QHash<QString, CommHistory::Group> handleGroups(GlogEventList glogevents);
+    Q_INVOKABLE void handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRemoteUids);
+    GlogEventList glogevents;
+    QMultiHash<QString, GlogEvent*> groups;
 
 public:
-    explicit InsertWorker(MessageList messages);
+    explicit InsertWorker(GlogEventList glogevents);
 
 signals:
     void seenGroupsChanged(int seenGroups);

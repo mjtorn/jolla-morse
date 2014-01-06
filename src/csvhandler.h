@@ -10,8 +10,8 @@
 #include <QString>
 #include <QThread>
 
-#ifndef MESSAGEOBJECT_H
-#include "message.h"
+#ifndef GLOGEVENTOBJECT_H
+#include "glogevent.h"
 #endif
 
 #include "csvworker.h"
@@ -30,7 +30,7 @@ public:
     Q_INVOKABLE void workerFinished();
     Q_INVOKABLE void insertFinished();
     Q_INVOKABLE void parseFile();
-    Q_INVOKABLE void insertMessages(MessageList messages);
+    Q_INVOKABLE void insertGlogEvents(GlogEventList glogevents);
     Q_INVOKABLE QString getState();
     Q_INVOKABLE int getReadBytes();
     Q_INVOKABLE int getSeenEntries();

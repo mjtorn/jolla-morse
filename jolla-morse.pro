@@ -13,8 +13,8 @@ CONFIG += sailfishapp
 SOURCES += src/jolla-morse.cpp \
     src/csvhandler.cpp \
     src/csvworker.cpp \
-    src/message.cpp \
-    src/insertworker.cpp
+    src/insertworker.cpp \
+    src/glogevent.cpp
 
 OTHER_FILES += qml/jolla-morse.qml \
     qml/cover/CoverPage.qml \
@@ -28,8 +28,8 @@ OTHER_FILES += qml/jolla-morse.qml \
 HEADERS += \
     src/csvhandler.h \
     src/csvworker.h \
-    src/message.h \
-    src/insertworker.h
+    src/insertworker.h \
+    src/glogevent.h
 
 
 PKGCONFIG += commhistory-qt5
