@@ -187,7 +187,7 @@ GlogEventList CSVWorker::actualParse() {
             rowNum++;
             //qDebug() << "Hit newline with seenCells" << seenCells << "and cell" << cell;
             if (seenCells == ROW_LENGTH - 1 && c1 == '\r' && c2 == '"') {
-                if (glogEvent->eventTypeName.compare(SMS_TYPE) == 0) {
+                if (glogEvent->eventTypeName.compare(glogEvent->SMS_TYPE) == 0) {
                     glogEvent->groupUID = cell;
                     //qDebug() << "got groupUID" << glogEvent->groupUID;
 

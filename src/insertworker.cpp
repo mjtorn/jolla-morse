@@ -227,70 +227,73 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
         for (int j=0; j<glogevents.size(); j++) {
             GlogEvent *glogEvent = glogevents.at(j);
 
-            QDateTime startTime;
-            startTime.setTime_t(glogEvent->startTime);
+            // Deal with different types different
+            if (glogEvent->eventTypeName.compare(glogEvent->SMS_TYPE) == 0) {
+                QDateTime startTime;
+                startTime.setTime_t(glogEvent->startTime);
 
-            // The n900 dump has end times only for incoming glogevents
-            // but having 0 on Jolla screws up the ordering.
-            QDateTime endTime;
-            if (glogEvent->endTime == 0) {
-                endTime.setTime_t(glogEvent->startTime);
-            } else {
-                endTime.setTime_t(glogEvent->endTime);
-            }
-
-            //qDebug() << "found in csv" << startTime.toString(Qt::TextDate);
-            s = startTime.toString(Qt::TextDate) + QString("|");
-
-            // GlogEvents sent to many people have empty remoteUid
-            if (!key.contains(',')) {
-                s += key;
-            } /*else {
-                qDebug() << "Going to skip key" << key;
-            }*/
-
-            s += QString("|") + glogEvent->freeText;
-
-            if (!hashlets.contains(s)) {
-                CommHistory::EventModel eventModel;
-
-                CommHistory::Event e;
-                e.setType(CommHistory::Event::SMSEvent);
-                e.setLocalUid(GROUP_LOCAL_UID);
-                e.setStartTime(startTime);
-                e.setEndTime(endTime);
-                (glogEvent->isOutgoing) ? e.setIsRead(true) : e.setIsRead(glogEvent->isRead);
-                (glogEvent->isOutgoing) ? e.setDirection(CommHistory::Event::Outbound) : e.setDirection(CommHistory::Event::Inbound);
-                // Sent glogevents are sent
-                // Also only they have lastModified
-                if (e.direction() == CommHistory::Event::Outbound) {
-                    e.setLastModified(startTime);
-                    e.setStatus(CommHistory::Event::SentStatus);
-                }
-                e.setGroupId(group.id());
-                // For group glogevents make sure the event is inserted foreach group,
-                // but the actual group version of the glogevent is without remoteUids.
-                if (!key.contains(','))
-                    e.setRemoteUid(key);
-                e.setFreeText(glogEvent->freeText);
-
-                int retval = eventModel.addEvent(e);
-                if (!retval) {
-                    qCritical() << "Failed adding event for glogevent" << glogEvent->id;
-                    emit duplicateSMSChanged(-1);
-                    emit insertedSMSChanged(-1);
-                    return;
+                // The n900 dump has end times only for incoming glogevents
+                // but having 0 on Jolla screws up the ordering.
+                QDateTime endTime;
+                if (glogEvent->endTime == 0) {
+                    endTime.setTime_t(glogEvent->startTime);
+                } else {
+                    endTime.setTime_t(glogEvent->endTime);
                 }
 
-                inserted++;
+                //qDebug() << "found in csv" << startTime.toString(Qt::TextDate);
+                s = startTime.toString(Qt::TextDate) + QString("|");
 
-                if (inserted % 100 == 0) {
-                    emit insertedSMSChanged(inserted);
-                }
-            } else {
-                duplicate++;
-                if (duplicate % 10 == 0) {
-                    emit duplicateSMSChanged(duplicate);
+                // GlogEvents sent to many people have empty remoteUid
+                if (!key.contains(',')) {
+                    s += key;
+                } /*else {
+                    qDebug() << "Going to skip key" << key;
+                }*/
+
+                s += QString("|") + glogEvent->freeText;
+
+                if (!hashlets.contains(s)) {
+                    CommHistory::EventModel eventModel;
+
+                    CommHistory::Event e;
+                    e.setType(CommHistory::Event::SMSEvent);
+                    e.setLocalUid(GROUP_LOCAL_UID);
+                    e.setStartTime(startTime);
+                    e.setEndTime(endTime);
+                    (glogEvent->isOutgoing) ? e.setIsRead(true) : e.setIsRead(glogEvent->isRead);
+                    (glogEvent->isOutgoing) ? e.setDirection(CommHistory::Event::Outbound) : e.setDirection(CommHistory::Event::Inbound);
+                    // Sent glogevents are sent
+                    // Also only they have lastModified
+                    if (e.direction() == CommHistory::Event::Outbound) {
+                        e.setLastModified(startTime);
+                        e.setStatus(CommHistory::Event::SentStatus);
+                    }
+                    e.setGroupId(group.id());
+                    // For group glogevents make sure the event is inserted foreach group,
+                    // but the actual group version of the glogevent is without remoteUids.
+                    if (!key.contains(','))
+                        e.setRemoteUid(key);
+                    e.setFreeText(glogEvent->freeText);
+
+                    int retval = eventModel.addEvent(e);
+                    if (!retval) {
+                        qCritical() << "Failed adding event for glogevent" << glogEvent->id;
+                        emit duplicateSMSChanged(-1);
+                        emit insertedSMSChanged(-1);
+                        return;
+                    }
+
+                    inserted++;
+
+                    if (inserted % 100 == 0) {
+                        emit insertedSMSChanged(inserted);
+                    }
+                } else {
+                    duplicate++;
+                    if (duplicate % 10 == 0) {
+                        emit duplicateSMSChanged(duplicate);
+                    }
                 }
             }
         }
