@@ -252,7 +252,8 @@ int InsertWorker::createEvent(GlogEvent *glogEvent, CommHistory::Group group, QD
 void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRemoteUids) {
     groups = this->groups;
     int duplicate = 0;
-    int inserted = 0;
+    int insertedSMS = 0;
+    int insertedCalls = 0;
 
     QList<CommHistory::Group> groupObjects = dbGroupRemoteUids.values();
     QList<int> groupIds;
@@ -309,17 +310,20 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
                         qCritical() << "Failed adding event for glogevent" << glogEvent->id;
                         emit duplicateSMSChanged(-1);
                         emit insertedSMSChanged(-1);
+                        emit insertedCallsChanged(-1);
                         return;
                     }
 
                     if (!glogEvent->isCall()) {
-                        inserted++;
-
-                        if (inserted % 100 == 0) {
-                            emit insertedSMSChanged(inserted);
+                        insertedSMS++;
+                        if (insertedSMS % 100 == 0) {
+                            emit insertedSMSChanged(insertedSMS);
                         }
                     } else {
-                        // Do something here
+                        insertedCalls++;
+                        if (insertedCalls % 100 == 0) {
+                            emit insertedCallsChanged(insertedCalls);
+                        }
                     }
                 } else {
                     duplicate++;
@@ -332,7 +336,8 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
     }
 
     emit duplicateSMSChanged(duplicate);
-    emit insertedSMSChanged(inserted);
+    emit insertedSMSChanged(insertedSMS);
+    emit insertedCallsChanged(insertedCalls);
 }
 
 void InsertWorker::run() {

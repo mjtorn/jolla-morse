@@ -34,6 +34,7 @@ signals:
     void newGroupsChanged(int newGroups);
     void duplicateSMSChanged(int duplicateSMS);
     void insertedSMSChanged(int insertedSMS);
+    void insertedCallsChanged(int insertedCalls);
 };
 
 #endif // INSERTWORKER_H
