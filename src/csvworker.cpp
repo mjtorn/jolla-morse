@@ -187,7 +187,6 @@ GlogEventList CSVWorker::actualParse() {
             rowNum++;
             //qDebug() << "Hit newline with seenCells" << seenCells << "and cell" << cell;
             if (seenCells == ROW_LENGTH - 1 && c1 == '\r' && c2 == '"') {
-                qDebug() << glogEvent->eventTypeName;
                 if (glogEvent->isSupported()) {
                     glogEvent->groupUID = cell;
                     //qDebug() << "got groupUID" << glogEvent->groupUID;
