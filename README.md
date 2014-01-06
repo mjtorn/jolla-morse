@@ -1,7 +1,7 @@
 jolla-morse
 ===========
 
-Ever wanted your text messages imported from your n900?
+Ever wanted your text messages imported from your Nokia n900?
 Using GlogArchive (http://maemo.org/packages/view/glogarchive/)?
 
 Or maybe you wanted to implement your own conversion using an open-source app that can insert
@@ -9,7 +9,7 @@ messages into your Jolla?
 
 If you answered yes, Morse is your app!
 
-Just dump your live db using GlogArchive, transfer the file to your Documents and open it
+Just dump your live db using GlogArchive, transfer the file to your Jolla Documents and open it
 with Morse.
 
 Screenshots: http://imgur.com/a/vO1QU
