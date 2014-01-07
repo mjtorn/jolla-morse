@@ -14,7 +14,7 @@ Name:       jolla-morse
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 Summary:    Jolla Morse
 Version:    0.0.3
-Release:    1
+Release:    2
 Group:      Qt/Qt
 License:    LICENSE
 URL:        http://example.org/
