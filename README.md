@@ -28,22 +28,8 @@ guarantees, warrantees, or anythings.
 IMPORTANT NOTICE
 ----------------
 
-The sdk emulator ships older versions of the libcommhistory library than what's currently
-on the phone. When I tried to get phone call logs imported on the phone, it doesn't find
-any of the stored messages or other events anymore. Therefore it inserts duplicates.
-
-I ran a git bisect, marking those commits bad that duplicate SMSs on the phone. I wound up
-with this commit: https://github.com/mjtorn/jolla-morse/commit/40618ddda7b6af428de44adc34048f1d5e30a752
-
-The bisect was run on _a rebase of master_ on top of _branch-0.0.4_, so I could easily deploy
-on the phone and still find the csv.
-
-Unfortunately that commit works on the emulator, so I don't know where to take this.
-
-Consider this software to be in arrested development. Not the TV show.
-
-Version 0.0.4 was not packaged as an RPM, it's basically about playing around with variable
-names, no functional changes.
+Use the released version. The big current bug is that after inserting messages and phone
+calls, some messages containing only ; are inserted.
 
 FAQ
 ---
