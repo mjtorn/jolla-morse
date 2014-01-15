@@ -20,6 +20,12 @@ InsertWorker::InsertWorker(GlogEventList glogevents) :
     this->glogevents = glogevents;
 }
 
+/*
+ * This is reponsible for splicing multi-uid GlogEvents into single uids.
+ *
+ * Sets into this a QMultiHash of group ids and events where these are mapped.
+ *
+ */
 void InsertWorker::setGrouped(GlogEventList glogevents) {
     QSet<QString> remoteUids;    // These take out duplicate UIDs
     QStringList remoteUidList;  // Actually stored in a group
@@ -122,6 +128,13 @@ CommHistory::Group InsertWorker::createGroup(QStringList remoteUids) {
     return group;
 }
 
+/*
+ * This method syncs the groups in GlogEventList glogevents with what's in the
+ * db and returns the end result.
+ *
+ * The return value's keys are remoteUid(s) and values the Group objects
+ *
+ */
 QHash<QString, CommHistory::Group> InsertWorker::handleGroups(GlogEventList glogevents) {
     QHash<QString, CommHistory::Group> dbGroupRemoteUids; // This is all of them, our return value
 
@@ -267,6 +280,11 @@ int InsertWorker::createEvent(GlogEvent *glogEvent, CommHistory::Group group, QD
     return retval;
 }
 
+/*
+ * After this->groups has been populated, and the database has all the groups,
+ * call this to take care of insertions
+ *
+ */
 void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRemoteUids) {
     groups = this->groups;
     int duplicate = 0;
