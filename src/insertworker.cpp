@@ -291,10 +291,16 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
     int insertedSMS = 0;
     int insertedCalls = 0;
 
-    QList<CommHistory::Group> groupObjects = dbGroupRemoteUids.values();
+    // These are the groupIds to query for
     QList<int> groupIds;
+    // Store mapping from groupId to group here
+    // as a kind of cache for queries
+    QHash<int, CommHistory::Group> groupMap;
+
+    QList<CommHistory::Group> groupObjects = dbGroupRemoteUids.values();
     for (int i=0; i<groupObjects.size(); i++) {
         groupIds.push_back(groupObjects.at(i).id());
+        groupMap.insert(groupObjects.at(i).id(), groupObjects.at(i));
     }
 
     // Get all the glogevents in the db
@@ -302,25 +308,30 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
     QSet<QString> hashlets;
     QString s;
 
+    // Setting up the query
     CommHistory::ConversationModel conversationModel;
     conversationModel.enableContactChanges(false);
     conversationModel.setFilter(CommHistory::Event::UnknownType, GROUP_LOCAL_UID, CommHistory::Event::UnknownDirection);
-    bool retval = conversationModel.getEvents(groupIds);
-    if (!retval) {
-        qCritical() << "Failed getting events for groups";
-        return;
-    }
-    qDebug() << conversationModel.rowCount();
-    for (int i=0; i<conversationModel.rowCount(); i++) {
-        CommHistory::Event e = conversationModel.event(conversationModel.index(i, 0));
-        // It's in UTC by default
-        QDateTime dbStartTime = e.startTime();
-        //qDebug() << "found in db" << dbStartTime.toLocalTime().toString(Qt::TextDate);
-        s = dbStartTime.toLocalTime().toString(Qt::TextDate) + QString("|") + e.remoteUid() + QString("|") + e.freeText();
-        hashlets.insert(s);
+
+    // Query for all the groups
+    for (int i=0; i<groupIds.size(); i++) {
+        bool retval = conversationModel.getEvents(groupIds.at(i));
+        if (!retval) {
+            qCritical() << "Failed getting events for groups";
+            return;
+        }
+        //qDebug() << conversationModel.rowCount();
+        for (int i=0; i<conversationModel.rowCount(); i++) {
+            CommHistory::Event e = conversationModel.event(conversationModel.index(i, 0));
+            // It's in UTC by default
+            QDateTime dbStartTime = e.startTime();
+            //qDebug() << "found in db" << dbStartTime.toLocalTime().toString(Qt::TextDate);
+            s = dbStartTime.toLocalTime().toString(Qt::TextDate) + QString("|") + e.remoteUid() + QString("|") + e.freeText();
+            hashlets.insert(s);
+        }
     }
 
-    // Iterate over what we have
+    // Iterate over what we have and insert them all
     QList<QString> groupKeys = groups.uniqueKeys();
     for (int i=0;i<groupKeys.size(); i++) {
         QString key = groupKeys.at(i);
