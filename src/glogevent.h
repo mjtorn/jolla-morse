@@ -16,6 +16,7 @@ public:
     explicit GlogEvent(QObject *parent = 0);
     Q_INVOKABLE bool isSupported(); // SMS and phone calls we can do.
     Q_INVOKABLE bool isCall(); // Both kinds of calls
+    Q_INVOKABLE QString startTimeToString();
     quint32 id;
     QString eventTypeName;  // Doesn't look interesting to Jolla
     bool isOutgoing;

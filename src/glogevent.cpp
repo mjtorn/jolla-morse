@@ -1,5 +1,8 @@
 #include "glogevent.h"
 
+#include <QDateTime>
+#include <QString>
+
 GlogEvent::GlogEvent(QObject *parent) :
     QObject(parent)
 {
@@ -17,4 +20,11 @@ bool GlogEvent::isSupported() {
 bool GlogEvent::isCall() {
     return (this->eventTypeName.compare(this->CALL_TYPE) == 0 \
              || this->eventTypeName.compare(this->CALL_MISSED_TYPE) == 0);
+}
+
+QString GlogEvent::startTimeToString() {
+    QDateTime startTime;
+    startTime.setTime_t(this->startTime);
+
+    return startTime.toString(Qt::TextDate);
 }
