@@ -255,6 +255,12 @@ GlogEventList CSVWorker::actualParse() {
         }
         // XXX: This char* thing is probably bad :D
         Q_ASSERT_X(glogevents.at(i)->remoteUID.compare(QString("")) != 0, (char*)glogevents.at(i)->id, "empty remoteUID");
+
+        if (glogevents.at(i)->isCall()) {
+            Q_ASSERT(glogevents.at(i)->freeText.size() == 0);
+        } else {
+            Q_ASSERT(glogevents.at(i)->freeText.size() >= 1);
+        }
     }
     //qDebug() << seenCells;
     emit seenSMSChanged(glogevents.size());
