@@ -28,8 +28,12 @@ guarantees, warrantees, or anythings.
 IMPORTANT NOTICE
 ----------------
 
-Use the released version. The big current bug is that after inserting messages and phone
-calls, some messages containing only ; are inserted.
+There is partial support in the code for importing phone calls. This is disabled, however
+because of certain bugs:
+
+ * The n900 doesn't store phone call durations, which makes it a bit less useful
+ * My CSV parser must be buggy, because it inserts empty and ";" messages when inserting phone calls
+ * When looking at the call history after an import, phone calls are in no particular order. Bug in Jolla?
 
 FAQ
 ---
@@ -76,11 +80,14 @@ Incoming, called canceled: direction=1, isRead=0, isMissedCall=1, endTime = star
 
 Why outgoing calls are marked read is beyond me.
 
+When someone sent you a Contact Card, GlogArchive exports it as an empty message, which is
+stored as ";" in the messages due to the CSV parser having problems with empty messages.
+
 Caveats
 -------
 
-There's a lot of detailing I didn't have time to do. Try reading another file while
-already reading another one; it won't start new threads but it changes the label.
+There's a lot of detailing I didn't have time to do. Try reading a second file while
+already reading a file; it won't start new threads but it changes the label.
 
 It requires libcommhistory-qt5-devel. Install it through the IDE/SDK.
 
@@ -93,5 +100,8 @@ Store?
 ------
 
 Morse will probably never find itself in the store. I'm sure there's too much of process
-in the way for an app I'm doing mostly for myself for a pretty special case. Let's see.
+in the way for an app I'm doing mostly for myself for a pretty special case.
+
+Considering how hard the reverse-engineering has been, and what risks always lie
+in that kind of code, I would never carry the responsibility of this app. Sorry.
 
