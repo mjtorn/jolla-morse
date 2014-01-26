@@ -164,7 +164,7 @@ GlogEventList CSVWorker::actualParse() {
                         break;
                     case 16:
                         // FIXME: The parser should handle a glogevent whose content is only ;
-                        if (cell.size() == 0) {
+                        if (cell.size() == 0 && !glogEvent->isCall()) {
                             glogEvent->freeText = QString(";");
                         } else {
                             glogEvent->freeText = QString::fromUtf8(cell);
