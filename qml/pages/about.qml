@@ -54,7 +54,7 @@ Page {
                 width: parent.width
             }
             Label {
-                text: "0.0.5-1alpha\n\nCopyright 2013 Markus Törnqvist\n<mjt@nysv.org>\n\nhttps://github.com/mjtorn/jolla-morse/"
+                text: "0.0.5-1\n\nCopyright 2013 Markus Törnqvist\n<mjt@nysv.org>\n\nhttps://github.com/mjtorn/jolla-morse/"
                 horizontalAlignment: Text.AlignHCenter
                 elide: Text.ElideMiddle
                 width: parent.width
