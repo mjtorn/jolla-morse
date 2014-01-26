@@ -350,7 +350,7 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
                 QDateTime startTime;
                 s = getCheck(glogEvent, &startTime, &key);
 
-                if (!hashlets.contains(s)) {
+                if (!hashlets.contains(s) && !glogEvent->isCall()) {
                     int retval = createEvent(glogEvent, group, startTime, key);
                     if (!retval) {
                         qCritical() << "Failed adding event for glogevent" << glogEvent->id;
