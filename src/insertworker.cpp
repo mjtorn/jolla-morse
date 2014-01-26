@@ -362,6 +362,7 @@ void InsertWorker::handleGlogEvents(QHash<QString, CommHistory::Group> dbGroupRe
 
                     if (!glogEvent->isCall()) {
                         insertedSMS++;
+                        //qDebug() << "Added SMS" << glogEvent->startTime << glogEvent->startTimeToString() << glogEvent->remoteUID << glogEvent->freeText;
                         if (insertedSMS % 100 == 0 || !prevWasSMS) {
                             emit insertedSMSChanged(insertedSMS);
                         }
