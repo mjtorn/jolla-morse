@@ -12,6 +12,8 @@ If you answered yes, Morse is your app!
 Just dump your live db using GlogArchive, transfer the file to your Jolla Documents and open it
 with Morse.
 
+OpenRepos page: https://openrepos.net/content/mjtorn/morse
+
 Screenshots: http://imgur.com/a/vO1QU
 
 RMPS: https://github.com/mjtorn/jolla-morse/tree/master/RPMS
